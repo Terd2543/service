@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเช็คชื่อนักเรียน ม.1/10</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* --- CSS Styles --- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* เปลี่ยนเป็น flex-start */
+            min-height: 100vh;
+            margin: 20px; /* เพิ่ม margin */
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Login Card */
+        .auth-card {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        .auth-card input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .auth-card button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .auth-card button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        h2#current-date {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        td button {
+            background-color: #4CAF50; /* มา */
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 14px;
+        }
+
+        td button.ลา { background-color: #ff9800; }
+        td button.ขาด { background-color: #f44336; }
+        td button.สาย { background-color: #2196F3; }
+
+        td button.active {
+            outline: 2px solid #000; /* ขอบดำเมื่อ Active */
+            outline-offset: 2px;
+        }
+
+        td button:hover {
+            opacity: 0.9;
+        }
+
+        #submit-attendance-btn {
+            background-color: #673AB7; /* สีม่วง */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 30px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        #submit-attendance-btn:hover {
+            background-color: #512DA8;
+        }
+
+        .loading-spinner {
+            font-size: 1.5em;
+            color: #555;
+            margin-top: 50px;
+        }
+        /* --- End CSS Styles --- */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login-section" class="auth-card">
+            <h2>เข้าสู่ระบบ</h2>
+            <input type="text" id="username" placeholder="ชื่อผู้ใช้ (อีเมล)">
+            <input type="password" id="password" placeholder="รหัสผ่าน">
+            <button id="login-btn">เข้าสู่ระบบ</button>
+            <p id="login-error" class="error-message"></p>
+        </div>
+
+        <div id="attendance-section" class="hidden">
+            <h1>ระบบเช็คชื่อนักเรียน ม.1/10</h1>
+            <h2 id="current-date"></h2>
+            <table id="attendance-table">
+                <thead>
+                    <tr>
+                        <th>ลำดับ</th>
+                        <th>ชื่อนักเรียน</th>
+                        <th>สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+            <button id="submit-attendance-btn">ยืนยันการเช็คชื่อและแจ้งเตือน LINE</button>
+        </div>
+    </div>
+
+    <script>
+        // --- JavaScript Logic ---
+
+        // 1. Firebase Client-side Configuration (สำหรับ Authentication และดึงรายชื่อนักเรียน)
+        // *** เปลี่ยนค่าเหล่านี้เป็นค่าของโปรเจกต์ Firebase ของคุณเอง ***
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // 2. Backend API URL
+        // *** เปลี่ยนเป็น URL ของ Render Backend ของคุณ ***
+        const BACKEND_API_BASE_URL = 'https://your-backend-service.onrender.com/api';
+
+        // 3. DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const attendanceSection = document.getElementById('attendance-section');
+        const loginBtn = document.getElementById('login-btn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginError = document.getElementById('login-error');
+        const currentDateElem = document.getElementById('current-date');
+        const attendanceTableBody = document.querySelector('#attendance-table tbody');
+        const submitAttendanceBtn = document.getElementById('submit-attendance-btn');
+
+        let students = []; // เก็บรายชื่อนักเรียน
+        let attendanceStatus = {}; // { studentId: 'มา/ลา/ขาด/สาย' }
+
+        // 4. Utility Functions
+        const getCurrentDate = () => {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            const yyyy = today.getFullYear();
+            return `${dd}/${mm}/${yyyy}`; // สำหรับแสดงผล
+        };
+
+        const getFormattedDateForBackend = () => {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`; // สำหรับส่งไป Backend (YYYY-MM-DD)
+        };
+
+        // 5. Render Students Table
+        const renderStudents = async () => {
+            attendanceTableBody.innerHTML = `<tr><td colspan="3" class="loading-spinner">กำลังโหลดรายชื่อนักเรียน...</td></tr>`;
+            try {
+                // ดึงนักเรียนจาก Firestore ที่มี class เป็น 'ม.1/10'
+                const studentsSnapshot = await db.collection('students').where('class', '==', 'ม.1/10').get();
+                students = studentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                attendanceTableBody.innerHTML = ''; // Clear existing rows
+                students.forEach((student, index) => {
+                    const row = attendanceTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${student.name}</td>
+                        <td id="status-${student.id}">
+                            <button data-id="${student.id}" data-status="มา" class="status-btn">มา</button>
+                            <button data-id="${student.id}" data-status="ลา" class="status-btn ลา">ลา</button>
+                            <button data-id="${student.id}" data-status="ขาด" class="status-btn ขาด">ขาด</button>
+                            <button data-id="${student.id}" data-status="สาย" class="status-btn สาย">สาย</button>
+                        </td>
+                    `;
+
+                    // Attach event listeners to status buttons
+                    const buttons = row.querySelectorAll(`.status-btn[data-id="${student.id}"]`);
+                    buttons.forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const studentId = event.target.dataset.id;
+                            const status = event.target.dataset.status;
+
+                            // Remove 'active' class from all buttons for this student
+                            buttons.forEach(btn => btn.classList.remove('active'));
+                            // Add 'active' class to the clicked button
+                            event.target.classList.add('active');
+
+                            attendanceStatus[studentId] = status;
+                            console.log(`Student ${student.name} (${studentId}) is now: ${status}`);
+                        });
+                    });
+                });
+            } catch (error) {
+                console.error("Error fetching students:", error);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดรายชื่อนักเรียนได้: ' + error.message, 'error');
+                attendanceTableBody.innerHTML = `<tr><td colspan="3" class="error-message">ไม่สามารถโหลดรายชื่อนักเรียนได้</td></tr>`;
+            }
+        };
+
+        // 6. Login Function
+        loginBtn.addEventListener('click', async () => {
+            const email = usernameInput.value;
+            const password = passwordInput.value;
+            loginError.textContent = ''; // Clear previous errors
+
+            if (!email || !password) {
+                loginError.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
+                return;
+            }
+
+            try {
+                Swal.fire({
+                    title: 'กำลังเข้าสู่ระบบ...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // ใช้ Firebase Client SDK เพื่อ Login
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                console.log('Logged in user:', userCredential.user.uid);
+
+                // หลังจาก Login สำเร็จ ให้ซ่อนหน้า Login และแสดงหน้าเช็คชื่อ
+                loginSection.classList.add('hidden');
+                attendanceSection.classList.remove('hidden');
+                currentDateElem.textContent = `วันที่ ${getCurrentDate()}`;
+                await renderStudents(); // โหลดรายชื่อนักเรียนหลังจาก Login
+
+                Swal.close(); // ปิด loading alert
+                Swal.fire('เข้าสู่ระบบสำเร็จ', 'ยินดีต้อนรับสู่ระบบเช็คชื่อ!', 'success');
+
+            } catch (error) {
+                Swal.close(); // ปิด loading alert
+                console.error("Login error:", error.message);
+                let errorMessage = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'รูปแบบอีเมลไม่ถูกต้อง';
+                }
+                loginError.textContent = errorMessage;
+                Swal.fire('เข้าสู่ระบบไม่สำเร็จ', errorMessage, 'error');
+            }
+        });
+
+        // 7. Submit Attendance Function
+        submitAttendanceBtn.addEventListener('click', async () => {
+            // ตรวจสอบว่าเช็คชื่อครบทุกคนหรือไม่
+            const unCheckedStudents = students.filter(student => !attendanceStatus[student.id]);
+            if (unCheckedStudents.length > 0) {
+                const studentNames = unCheckedStudents.map(s => s.name).join(', ');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ยังเช็คชื่อไม่ครบ',
+                    text: `นักเรียนเหล่านี้ยังไม่ได้เช็คชื่อ: ${studentNames}`,
+                    confirmButtonText: 'ตกลง'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'กำลังบันทึกและแจ้งเตือน...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const currentDateBackend = getFormattedDateForBackend();
+
+                // 7.1 ส่งข้อมูลการเช็คชื่อแต่ละคนไป Backend
+                // ใช้ Promise.all เพื่อส่ง request ไปพร้อมกัน
+                const recordPromises = students.map(student => {
+                    return fetch(`${BACKEND_API_BASE_URL}/attendance/record`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // หาก Backend ต้องการ Auth Token, คุณต้องส่ง idToken ที่ได้จาก Firebase Login
+                            // 'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+                        },
+                        body: JSON.stringify({
+                            studentId: student.id,
+                            studentName: student.name, // ส่งชื่อนักเรียนไปด้วย
+                            date: currentDateBackend,
+                            status: attendanceStatus[student.id]
+                        })
+                    }).then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => { throw new Error(err.message || 'Failed to record attendance for ' + student.name); });
+                        }
+                        return response.json();
+                    });
+                });
+
+                await Promise.all(recordPromises);
+
+                // 7.2 ส่งคำขอให้ Backend สรุปผลและส่ง LINE Notification
+                const summaryResponse = await fetch(`${BACKEND_API_BASE_URL}/attendance/summary-and-notify?date=${currentDateBackend}`, {
+                    method: 'GET',
+                    headers: {
+                        // หาก Backend ต้องการ Auth Token, คุณต้องส่ง idToken ที่ได้จาก Firebase Login
+                        // 'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+                    }
+                });
+
+                if (!summaryResponse.ok) {
+                    const errorData = await summaryResponse.json();
+                    throw new Error(errorData.message || 'Failed to get summary or send LINE notification.');
+                }
+
+                const summaryData = await summaryResponse.json();
+                console.log('Summary and Line Notify result:', summaryData);
+
+                Swal.fire('เช็คชื่อสำเร็จ!', 'ข้อมูลถูกบันทึกและส่งแจ้งเตือน LINE เรียบร้อยแล้ว', 'success');
+
+            } catch (error) {
+                console.error("Error submitting attendance:", error);
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกหรือแจ้งเตือนได้: ' + error.message, 'error');
+            }
+        });
+
+        // Initial load: Check if user is already logged in (optional, but good UX)
+        // เมื่อโหลดหน้าเว็บ: ตรวจสอบสถานะการ Login ของผู้ใช้
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // ถ้ามีผู้ใช้ Login อยู่
+                loginSection.classList.add('hidden');
+                attendanceSection.classList.remove('hidden');
+                currentDateElem.textContent = `วันที่ ${getCurrentDate()}`;
+                renderStudents(); // โหลดรายชื่อนักเรียน
+            } else {
+                // ถ้ายังไม่มีผู้ใช้ Login
+                loginSection.classList.remove('hidden');
+                attendanceSection.classList.add('hidden');
+            }
+        });
+
+        // --- End JavaScript Logic ---
+    </script>
+</body>
+</html>
