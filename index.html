@@ -122,6 +122,12 @@
             opacity: 0.9;
         }
 
+        .checkin-count {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
         #submit-attendance-btn {
             background-color: #673AB7; /* สีม่วง */
             color: white;
@@ -209,7 +215,8 @@
         const submitAttendanceBtn = document.getElementById('submit-attendance-btn');
 
         let students = []; // เก็บรายชื่อนักเรียน
-        let attendanceStatus = {}; // { studentId: 'มา/ลา/ขาด/สาย' }
+        // เปลี่ยนโครงสร้าง attendanceStatus: { studentId: { status: 'มา/ลา/ขาด/สาย', checkIns: [] } }
+        let attendanceData = {}; // เก็บข้อมูลสถานะและ checkIns ของแต่ละนักเรียน
 
         // 4. Utility Functions
         const getCurrentDate = () => {
@@ -231,22 +238,45 @@
         // 5. Render Students Table
         const renderStudents = async () => {
             attendanceTableBody.innerHTML = `<tr><td colspan="3" class="loading-spinner">กำลังโหลดรายชื่อนักเรียน...</td></tr>`;
+            const currentDateBackend = getFormattedDateForBackend();
+
             try {
                 // ดึงนักเรียนจาก Firestore ที่มี class เป็น 'ม.1/10'
                 const studentsSnapshot = await db.collection('students').where('class', '==', 'ม.1/10').get();
                 students = studentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+                // ดึงข้อมูลการเช็คชื่อที่บันทึกไว้แล้วสำหรับวันนี้
+                const attendanceSnapshot = await db.collection('attendance')
+                    .where('date', '==', currentDateBackend)
+                    .get();
+
+                attendanceSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    attendanceData[data.studentId] = {
+                        status: data.status,
+                        checkIns: data.checkIns || []
+                    };
+                });
+
                 attendanceTableBody.innerHTML = ''; // Clear existing rows
                 students.forEach((student, index) => {
                     const row = attendanceTableBody.insertRow();
+                    const currentStudentAttendance = attendanceData[student.id] || { status: '', checkIns: [] };
+                    attendanceData[student.id] = currentStudentAttendance; // Initialize if not present
+
+                    const checkInCount = currentStudentAttendance.checkIns.length;
+                    const statusClass = currentStudentAttendance.status; // 'มา', 'ลา', 'ขาด', 'สาย'
+
                     row.innerHTML = `
                         <td>${index + 1}</td>
-                        <td>${student.name}</td>
+                        <td>${index + 1}. ${student.name}</td>
                         <td id="status-${student.id}">
-                            <button data-id="${student.id}" data-status="มา" class="status-btn">มา</button>
-                            <button data-id="${student.id}" data-status="ลา" class="status-btn ลา">ลา</button>
-                            <button data-id="${student.id}" data-status="ขาด" class="status-btn ขาด">ขาด</button>
-                            <button data-id="${student.id}" data-status="สาย" class="status-btn สาย">สาย</button>
+                            <button data-id="${student.id}" data-type="checkin" class="status-btn ${statusClass === 'มา' ? 'active' : ''}">
+                                เช็คอิน <span class="checkin-count">${checkInCount > 0 ? `(${checkInCount})` : ''}</span>
+                            </button>
+                            <button data-id="${student.id}" data-type="ลา" class="status-btn ลา ${statusClass === 'ลา' ? 'active' : ''}">ลา</button>
+                            <button data-id="${student.id}" data-type="ขาด" class="status-btn ขาด ${statusClass === 'ขาด' ? 'active' : ''}">ขาด</button>
+                            <button data-id="${student.id}" data-type="สาย" class="status-btn สาย ${statusClass === 'สาย' ? 'active' : ''}">สาย</button>
                         </td>
                     `;
 
@@ -255,26 +285,46 @@
                     buttons.forEach(button => {
                         button.addEventListener('click', (event) => {
                             const studentId = event.target.dataset.id;
-                            const status = event.target.dataset.status;
+                            const type = event.target.dataset.type; // 'checkin', 'ลา', 'ขาด', 'สาย'
 
-                            // Remove 'active' class from all buttons for this student
-                            buttons.forEach(btn => btn.classList.remove('active'));
-                            // Add 'active' class to the clicked button
-                            event.target.classList.add('active');
+                            const studentAttendance = attendanceData[studentId];
+                            const allButtonsForStudent = row.querySelectorAll(`.status-btn`);
 
-                            attendanceStatus[studentId] = status;
-                            console.log(`Student ${student.name} (${studentId}) is now: ${status}`);
+                            if (type === 'checkin') {
+                                // Add a new check-in timestamp
+                                studentAttendance.checkIns.push(new Date().toISOString());
+                                studentAttendance.status = 'มา'; // Set overall status to 'มา'
+                                event.target.querySelector('.checkin-count').textContent = `(${studentAttendance.checkIns.length})`;
+
+                                // Deactivate other status buttons
+                                allButtonsForStudent.forEach(btn => {
+                                    if (btn.dataset.type !== 'checkin') {
+                                        btn.classList.remove('active');
+                                    }
+                                });
+                                event.target.classList.add('active'); // Activate 'เช็คอิน' button
+                            } else {
+                                // For 'ลา', 'ขาด', 'สาย'
+                                studentAttendance.status = type; // Set overall status
+                                studentAttendance.checkIns = []; // Clear check-ins
+
+                                // Update UI: activate clicked button, deactivate others (including 'เช็คอิน')
+                                allButtonsForStudent.forEach(btn => btn.classList.remove('active'));
+                                event.target.classList.add('active');
+                                row.querySelector(`.status-btn[data-type="checkin"] .checkin-count`).textContent = ''; // Clear check-in count
+                            }
+                            console.log(`Student ${student.name} (${studentId}) updated:`, studentAttendance);
                         });
                     });
                 });
             } catch (error) {
-                console.error("Error fetching students:", error);
-                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดรายชื่อนักเรียนได้: ' + error.message, 'error');
+                console.error("Error fetching students or attendance:", error);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดรายชื่อนักเรียนหรือข้อมูลเช็คชื่อได้: ' + error.message, 'error');
                 attendanceTableBody.innerHTML = `<tr><td colspan="3" class="error-message">ไม่สามารถโหลดรายชื่อนักเรียนได้</td></tr>`;
             }
         };
 
-        // 6. Login Function
+        // 6. Login Function (เหมือนเดิม)
         loginBtn.addEventListener('click', async () => {
             const email = usernameInput.value;
             const password = passwordInput.value;
@@ -321,10 +371,10 @@
             }
         });
 
-        // 7. Submit Attendance Function
+        // 7. Submit Attendance Function (ปรับปรุง)
         submitAttendanceBtn.addEventListener('click', async () => {
             // ตรวจสอบว่าเช็คชื่อครบทุกคนหรือไม่
-            const unCheckedStudents = students.filter(student => !attendanceStatus[student.id]);
+            const unCheckedStudents = students.filter(student => !attendanceData[student.id] || attendanceData[student.id].status === '');
             if (unCheckedStudents.length > 0) {
                 const studentNames = unCheckedStudents.map(s => s.name).join(', ');
                 Swal.fire({
@@ -348,21 +398,20 @@
                 const currentDateBackend = getFormattedDateForBackend();
 
                 // 7.1 ส่งข้อมูลการเช็คชื่อแต่ละคนไป Backend
-                // ใช้ Promise.all เพื่อส่ง request ไปพร้อมกัน
                 const recordPromises = students.map(student => {
+                    const dataToSend = {
+                        studentId: student.id,
+                        studentName: student.name,
+                        date: currentDateBackend,
+                        status: attendanceData[student.id].status,
+                        checkIns: attendanceData[student.id].checkIns // ส่ง array ของ checkIns ไปด้วย
+                    };
                     return fetch(`${BACKEND_API_BASE_URL}/attendance/record`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            // หาก Backend ต้องการ Auth Token, คุณต้องส่ง idToken ที่ได้จาก Firebase Login
-                            // 'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
                         },
-                        body: JSON.stringify({
-                            studentId: student.id,
-                            studentName: student.name, // ส่งชื่อนักเรียนไปด้วย
-                            date: currentDateBackend,
-                            status: attendanceStatus[student.id]
-                        })
+                        body: JSON.stringify(dataToSend)
                     }).then(response => {
                         if (!response.ok) {
                             return response.json().then(err => { throw new Error(err.message || 'Failed to record attendance for ' + student.name); });
