@@ -28,6 +28,192 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        /* --- Custom RGB Spinner Styles (Ultimate Version) --- */
+        .spinner {
+            position: relative;
+            width: 36px; /* Larger base size */
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner::before,
+        .spinner::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            animation: spin 2s linear infinite, color-glow 4s linear infinite;
+        }
+
+        .spinner::before {
+            width: 100%;
+            height: 100%;
+            border-top-color: #ff0000; /* Red */
+            border-right-color: #00ff00; /* Green */
+            animation-delay: 0s;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.7)); /* Red glow */
+        }
+
+        .spinner::after {
+            width: 70%; /* Smaller inner circle */
+            height: 70%;
+            border-bottom-color: #0000ff; /* Blue */
+            border-left-color: #ff00ff; /* Magenta */
+            animation-delay: -1s; /* Offset animation */
+            filter: drop-shadow(0 0 8px rgba(0, 0, 255, 0.7)); /* Blue glow */
+        }
+
+        /* Central dot for more complexity */
+        .spinner-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ffffff, #cccccc);
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            z-index: 10;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes color-glow {
+            0% { 
+                border-top-color: #ff0000; border-right-color: #00ff00; border-bottom-color: #0000ff; border-left-color: #ff00ff;
+                filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.7)); 
+            }
+            25% { 
+                border-top-color: #00ff00; border-right-color: #0000ff; border-bottom-color: #ff00ff; border-left-color: #ff0000;
+                filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.7)); 
+            }
+            50% { 
+                border-top-color: #0000ff; border-right-color: #ff00ff; border-bottom-color: #ff0000; border-left-color: #00ff00;
+                filter: drop-shadow(0 0 8px rgba(0, 0, 255, 0.7)); 
+            }
+            75% { 
+                border-top-color: #ff00ff; border-right-color: #ff0000; border-bottom-color: #00ff00; border-left-color: #0000ff;
+                filter: drop-shadow(0 0 8px rgba(255, 0, 255, 0.7)); 
+            }
+            100% { 
+                border-top-color: #ff0000; border-right-color: #00ff00; border-bottom-color: #0000ff; border-left-color: #ff00ff;
+                filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.7)); 
+            }
+        }
+
+        /* Custom Button Shadows and Text Shadows for "เวอร์" Look */
+        .shadow-3xl {
+            /* Deeper, more complex shadow for a raised effect */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), /* Main shadow */
+                        0 6px 6px rgba(0, 0, 0, 0.23), /* Secondary shadow for depth */
+                        inset 0 2px 4px rgba(255, 255, 255, 0.2); /* Subtle highlight for embossed look */
+        }
+        .text-shadow-lg {
+            /* Text shadow for more readability and depth */
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        /* --- Custom Radio Button Styles (New) --- */
+        .custom-radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            user-select: none; /* Prevent text selection */
+            padding: 6px 10px; /* Add padding to make the clickable area larger */
+            border-radius: 8px; /* Rounded corners for the label background */
+            transition: background-color 0.2s ease-in-out;
+            margin-right: 8px; /* Space between radio buttons */
+        }
+
+        .custom-radio-label input[type="radio"] {
+            /* Hide the browser's default radio button */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .custom-radio-label .radio-outer-circle {
+            /* The custom radio button outer circle */
+            height: 22px; /* Slightly larger */
+            width: 22px;
+            min-width: 22px; /* Ensure it doesn't shrink */
+            border: 2px solid #a0a0a0; /* Softer border */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+            margin-right: 8px; /* Space between circle and text */
+            background-color: #f0f0f0; /* Light background */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05); /* Subtle inner shadow */
+        }
+
+        /* Inner dot for checked state */
+        .custom-radio-label .radio-inner-dot {
+            height: 12px; /* Inner dot size */
+            width: 12px;
+            border-radius: 50%;
+            background-color: #6a0dad; /* Default purple for inner dot (will be overridden by status-specific colors) */
+            transform: scale(0);
+            transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+            opacity: 0; /* Initially hidden */
+        }
+
+        /* Styles for checked state */
+        .custom-radio-label input[type="radio"]:checked + .radio-outer-circle {
+            border-color: #6a0dad; /* Purple border when checked */
+            background: linear-gradient(145deg, #e0e0e0, #f9f9f9); /* Keep light background */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), 0 0 10px rgba(106, 13, 173, 0.4); /* Stronger glow */
+        }
+
+        .custom-radio-label input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Styles for hover state */
+        .custom-radio-label:hover {
+            background-color: rgba(106, 13, 173, 0.05); /* Light purple highlight on hover */
+        }
+
+        .custom-radio-label:hover .radio-outer-circle {
+            border-color: #9b59b6; /* Slightly brighter border on hover */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 0 8px rgba(106, 13, 173, 0.2);
+        }
+
+        /* Specific colors for inner dot based on status */
+        .custom-radio-label.status-มา input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #22c55e; /* Green for มา */
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+        }
+        .custom-radio-label.status-ลา input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #eab308; /* Yellow for ลา */
+            box-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
+        }
+        .custom-radio-label.status-ขาด input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #ef4444; /* Red for ขาด */
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        .custom-radio-label.status-สาย input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #f97316; /* Orange for สาย */
+            box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+        }
+
+        /* Color specific styles for the text (ensure these are defined after the main text color) */
+        .text-green-700 { color: #15803d; }
+        .text-yellow-700 { color: #a16207; }
+        .text-red-700 { color: #b91c1c; }
+        .text-orange-700 { color: #c2410c; }
+
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -55,8 +241,21 @@
         </div>
 
         <button id="confirmButton"
-                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
-            ยืนยันการเช็คชื่อและแจ้งเตือน LINE
+                class="w-full bg-gradient-to-br from-purple-800 via-indigo-700 to-blue-600 text-white font-bold py-4 px-8 rounded-2xl shadow-3xl
+                       relative overflow-hidden
+                       hover:from-purple-900 hover:via-indigo-800 hover:to-blue-700
+                       transition-all duration-300 ease-in-out
+                       transform hover:scale-105 active:scale-95
+                       focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-75
+                       flex items-center justify-center space-x-3
+                       border border-white border-opacity-20
+                       group">
+            <span id="buttonText" class="relative z-10 text-shadow-lg">ยืนยันการเช็คชื่อและแจ้งเตือน LINE</span>
+            <div id="loadingSpinner" class="spinner hidden relative z-10">
+                <div class="spinner-dot"></div>
+            </div>
+            <!-- Subtle overlay for glassy effect -->
+            <div class="absolute inset-0 bg-white opacity-10 blur-sm pointer-events-none rounded-2xl"></div>
         </button>
     </div>
 
@@ -64,8 +263,14 @@
     <div id="customModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
             <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
+            <!-- Spinner for modal loading state -->
+            <div id="modalLoadingSpinner" class="flex justify-center items-center mb-6 hidden">
+                <div class="spinner">
+                    <div class="spinner-dot"></div>
+                </div>
+            </div>
             <p id="modalMessage" class="text-gray-700 mb-6"></p>
-            <button id="modalCloseButton" class="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200">
+            <button id="modalCloseButton" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-700 transition duration-300 transform hover:scale-105">
                 ตกลง
             </button>
         </div>
@@ -77,17 +282,15 @@
         import { getFirestore, collection, getDocs, doc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration
-        // *** สำคัญ: แทนที่ค่า YOUR_..._HERE ด้วยข้อมูลจริงจาก Firebase Console ของคุณ ***
-        // ไปที่ Firebase Console -> Project settings -> Your apps -> เลือก Web app ของคุณ
         const firebaseConfig = {
-  apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
-  authDomain: "service-b6c91.firebaseapp.com",
-  projectId: "service-b6c91",
-  storageBucket: "service-b6c91.firebasestorage.app",
-  messagingSenderId: "373682783124",
-  appId: "1:373682783124:web:f7a28733a95247e69b8581",
-  measurementId: "G-8WTMWP04HG"
-};
+            apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
+            authDomain: "service-b6c91.firebaseapp.com",
+            projectId: "service-b6c91",
+            storageBucket: "service-b6c91.firebasestorage.app",
+            messagingSenderId: "373682783124",
+            appId: "1:373682783124:web:f7a28733a95247e69b8581",
+            measurementId: "G-8WTMWP04HG"
+        };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -95,22 +298,23 @@
 
         // 2. Backend API URL
         // *** สำคัญ: เปลี่ยนเป็น Public URL ของ Render Backend ของคุณ (ไม่มี /api หรือ /webhook ต่อท้าย) ***
-        // ตัวอย่าง: 'https://backend-1ghl.onrender.com'
         const BACKEND_API_BASE_URL = 'https://backend-1ghl.onrender.com'; 
 
         // ตัวแปรสำหรับเก็บข้อมูลนักเรียนและสถานะการเช็คชื่อ
         let studentsData = [];
-        // attendanceStatus จะเก็บ status และ checkIns array (แต่ checkIns จะไม่แสดงผลใน UI)
         const attendanceStatus = {}; // { studentId: { status: 'มา/ลา/ขาด/สาย', checkIns: ['HH:MM', ...] } }
 
         // Elements
         const studentListTableBody = document.getElementById('studentList');
         const confirmButton = document.getElementById('confirmButton');
+        const buttonText = document.getElementById('buttonText'); // Element สำหรับข้อความปุ่มหลัก
+        const loadingSpinner = document.getElementById('loadingSpinner'); // Element สำหรับ Spinner ปุ่มหลัก
         const currentDateSpan = document.getElementById('currentDate');
         const customModal = document.getElementById('customModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
-        const modalCloseButton = document.getElementById('modalCloseButton');
+        const modalLoadingSpinner = document.getElementById('modalLoadingSpinner'); // Element สำหรับ Spinner ใน Modal
+        const modalCloseButton = document.getElementById('modalCloseButton'); // Element สำหรับปุ่มปิด Modal
 
         // Helper function to get today's date in YYYY-MM-DD format
         function getTodayDateString() {
@@ -130,9 +334,20 @@
         }
 
         // Display custom modal
-        function showModal(title, message) {
+        // เพิ่มพารามิเตอร์ isLoading เพื่อควบคุมการแสดงผลของ Spinner และปุ่มใน Modal
+        function showModal(title, message, isLoading = false) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
+            
+            if (isLoading) {
+                modalLoadingSpinner.classList.remove('hidden'); // Show modal spinner
+                modalCloseButton.classList.add('hidden'); // Hide modal close button
+                modalMessage.classList.add('hidden'); // Hide message when loading
+            } else {
+                modalLoadingSpinner.classList.add('hidden'); // Hide modal spinner
+                modalCloseButton.classList.remove('hidden'); // Show modal close button
+                modalMessage.classList.remove('hidden'); // Show message when not loading
+            }
             customModal.classList.remove('hidden');
         }
 
@@ -212,39 +427,37 @@
                     <td class="py-3 px-4 text-sm text-gray-800">${student.name}</td>
                     <td class="py-3 px-4 text-sm">
                         <div class="flex flex-wrap gap-2 items-center">
-                            <label class="inline-flex items-center">
+                            <label class="custom-radio-label status-มา">
                                 <input type="radio" name="status-${student.id}" value="มา" 
                                     ${currentStatus === 'มา' ? 'checked' : ''} 
-                                    class="form-radio h-4 w-4 text-green-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
                                 <span class="ml-2 text-green-700">มา</span>
                             </label>
-                            <label class="inline-flex items-center">
+                            <label class="custom-radio-label status-ลา">
                                 <input type="radio" name="status-${student.id}" value="ลา" 
                                     ${currentStatus === 'ลา' ? 'checked' : ''} 
-                                    class="form-radio h-4 w-4 text-yellow-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
                                 <span class="ml-2 text-yellow-700">ลา</span>
                             </label>
-                            <label class="inline-flex items-center">
+                            <label class="custom-radio-label status-ขาด">
                                 <input type="radio" name="status-${student.id}" value="ขาด" 
                                     ${currentStatus === 'ขาด' ? 'checked' : ''} 
-                                    class="form-radio h-4 w-4 text-red-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
                                 <span class="ml-2 text-red-700">ขาด</span>
                             </label>
-                            <label class="inline-flex items-center">
+                            <label class="custom-radio-label status-สาย">
                                 <input type="radio" name="status-${student.id}" value="สาย" 
                                     ${currentStatus === 'สาย' ? 'checked' : ''} 
-                                    class="form-radio h-4 w-4 text-orange-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
                                 <span class="ml-2 text-orange-700">สาย</span>
                             </label>
-                            <!-- ปุ่ม Check-in จะแสดงเมื่อสถานะเป็น 'มา' หรือ 'สาย' และจะเพิ่มเวลา Check-in ลงในข้อมูลภายใน -->
-                            ${currentStatus === 'มา' || currentStatus === 'สาย' ? 
-                                `<button class="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-md hover:bg-blue-600 transition duration-150" 
-                                         onclick="addCheckIn('${student.id}')">
-                                    + เช็คอิน
-                                </button>` : ''}
+                            <!-- Removed '+ เช็คอิน' button -->
                         </div>
                     </td>
-                    <!-- Removed 'เวลา Check-in' display column -->
                 `;
                 studentListTableBody.appendChild(row);
             });
@@ -263,32 +476,70 @@
             if (newStatus !== 'มา' && newStatus !== 'สาย') {
                 attendanceStatus[studentId].checkIns = [];
             }
-            
-            renderStudentList(); // Re-render to show/hide + Check-in button
+            // Re-render the list to update the radio button styles based on new status
+            // We need to re-render the specific row to update the status-class on the label
+            const studentRow = radio.closest('tr');
+            if (studentRow) {
+                const studentId = radio.dataset.studentId;
+                const student = studentsData.find(s => s.id === studentId);
+                if (student) {
+                    const tempStudentData = [student]; // Create a temp array with just this student
+                    const tempAttendanceStatus = { [studentId]: attendanceStatus[studentId] }; // Temp attendance status
+                    
+                    // Manually update the innerHTML of the relevant cell
+                    const statusCell = studentRow.querySelector('td:nth-child(3)'); // Assuming status is the 3rd column
+                    if (statusCell) {
+                        statusCell.innerHTML = `
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <label class="custom-radio-label status-มา">
+                                    <input type="radio" name="status-${student.id}" value="มา" 
+                                        ${newStatus === 'มา' ? 'checked' : ''} 
+                                        data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                    <span class="ml-2 text-green-700">มา</span>
+                                </label>
+                                <label class="custom-radio-label status-ลา">
+                                    <input type="radio" name="status-${student.id}" value="ลา" 
+                                        ${newStatus === 'ลา' ? 'checked' : ''} 
+                                        data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                    <span class="ml-2 text-yellow-700">ลา</span>
+                                </label>
+                                <label class="custom-radio-label status-ขาด">
+                                    <input type="radio" name="status-${student.id}" value="ขาด" 
+                                        ${newStatus === 'ขาด' ? 'checked' : ''} 
+                                        data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                    <span class="ml-2 text-red-700">ขาด</span>
+                                </label>
+                                <label class="custom-radio-label status-สาย">
+                                    <input type="radio" name="status-${student.id}" value="สาย" 
+                                        ${newStatus === 'สาย' ? 'checked' : ''} 
+                                        data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                    <span class="ml-2 text-orange-700">สาย</span>
+                                </label>
+                            </div>
+                        `;
+                        // Re-attach event listeners for the newly created radio buttons
+                        statusCell.querySelectorAll('input[type="radio"]').forEach(input => {
+                            input.onchange = (event) => window.updateStatus(event.target);
+                        });
+                    }
+                }
+            }
         };
 
-        window.addCheckIn = function(studentId) {
-            const currentTime = getCurrentTimeString();
-            attendanceStatus[studentId] = attendanceStatus[studentId] || { status: '', checkIns: [] };
-            
-            // ตรวจสอบว่าสถานะปัจจุบันเป็น 'มา' หรือ 'สาย' ก่อนเพิ่ม Check-in
-            if (attendanceStatus[studentId].status !== 'มา' && attendanceStatus[studentId].status !== 'สาย') {
-                attendanceStatus[studentId].status = 'มา'; // ตั้งสถานะเป็น 'มา' หากยังไม่ใช่
-            }
 
-            // เพิ่มเวลา Check-in หากยังไม่มีในนาทีปัจจุบัน
-            if (!attendanceStatus[studentId].checkIns.includes(currentTime)) {
-                attendanceStatus[studentId].checkIns.push(currentTime);
-                attendanceStatus[studentId].checkIns.sort(); // จัดเรียงเวลา Check-in
-                renderStudentList(); // Re-render เพื่ออัปเดตสถานะและปุ่ม
-            }
-        };
+        // Removed window.addCheckIn function
 
         // Function to send attendance data to backend and trigger LINE notification
         confirmButton.addEventListener('click', async () => {
             confirmButton.disabled = true;
-            confirmButton.textContent = 'กำลังยืนยัน...';
-            showModal('กำลังดำเนินการ', 'กำลังบันทึกข้อมูลการเช็คชื่อและส่งแจ้งเตือน LINE...');
+            buttonText.classList.add('hidden'); // Hide text
+            loadingSpinner.classList.remove('hidden'); // Show spinner
+            // แสดง Modal พร้อม Spinner และข้อความ "กำลังดำเนินการ"
+            showModal('กำลังดำเนินการ', 'กำลังบันทึกข้อมูลการเช็คชื่อและส่งแจ้งเตือน LINE...', true);
 
             const todayDate = getTodayDateString();
             let allRecordsSent = true;
@@ -349,22 +600,24 @@
                     });
 
                     if (summaryResponse.ok) {
-                        showModal('สำเร็จ!', 'บันทึกการเช็คชื่อและส่งแจ้งเตือน LINE เรียบร้อยแล้ว');
+                        showModal('สำเร็จ!', 'บันทึกการเช็คชื่อและส่งแจ้งเตือน LINE เรียบร้อยแล้ว', false); // แสดง Modal สำเร็จ
                     } else {
                         const errorData = await summaryResponse.json();
                         console.error('Failed to send LINE summary:', errorData);
-                        showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่ไม่สามารถส่งแจ้งเตือน LINE ได้: ${errorData.error || 'Unknown error'}`);
+                        showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่ไม่สามารถส่งแจ้งเตือน LINE ได้: ${errorData.error || 'Unknown error'}`, false); // แสดง Modal ข้อผิดพลาด
                     }
                 } catch (error) {
                     console.error('Error triggering LINE summary:', error);
-                    showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อส่งแจ้งเตือน LINE: ${error.message}`);
+                    showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อส่งแจ้งเตือน LINE: ${error.message}`, false); // แสดง Modal ข้อผิดพลาด
                 }
             } else {
-                showModal('ข้อผิดพลาดบางส่วน', 'มีบางรายการเช็คชื่อที่ไม่สามารถบันทึกได้ โปรดตรวจสอบ Console สำหรับรายละเอียด');
+                showModal('ข้อผิดพลาดบางส่วน', 'มีบางรายการเช็คชื่อที่ไม่สามารถบันทึกได้ โปรดตรวจสอบ Console สำหรับรายละเอียด', false); // แสดง Modal ข้อผิดพลาด
             }
 
+            // Reset button state
             confirmButton.disabled = false;
-            confirmButton.textContent = 'ยืนยันการเช็คชื่อและแจ้งเตือน LINE';
+            buttonText.classList.remove('hidden'); // Show text
+            loadingSpinner.classList.add('hidden'); // Hide spinner
             fetchStudents(); // Refresh data after submission
         });
 
