@@ -77,17 +77,16 @@
         import { getFirestore, collection, getDocs, doc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration
-        // *** สำคัญ: แทนที่ค่า YOUR_..._HERE ด้วยข้อมูลจริงจาก Firebase Console ของคุณ ***
-        // ไปที่ Firebase Console -> Project settings -> Your apps -> เลือก Web app ของคุณ
+        // *** อัปเดตด้วยค่าที่คุณให้มาล่าสุด ***
         const firebaseConfig = {
-  apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
-  authDomain: "service-b6c91.firebaseapp.com",
-  projectId: "service-b6c91",
-  storageBucket: "service-b6c91.firebasestorage.app",
-  messagingSenderId: "373682783124",
-  appId: "1:373682783124:web:f7a28733a95247e69b8581",
-  measurementId: "G-8WTMWP04HG"
-};
+            apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
+            authDomain: "service-b6c91.firebaseapp.com",
+            projectId: "service-b6c91",
+            storageBucket: "service-b6c91.firebasestorage.app",
+            messagingSenderId: "373682783124",
+            appId: "1:373682783124:web:f7a28733a95247e69b8581",
+            measurementId: "G-8WTMWP04HG"
+        };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -236,15 +235,9 @@
                                     class="form-radio h-4 w-4 text-orange-600" data-student-id="${student.id}" onchange="updateStatus(this)">
                                 <span class="ml-2 text-orange-700">สาย</span>
                             </label>
-                            <!-- ปุ่ม Check-in จะแสดงเมื่อสถานะเป็น 'มา' หรือ 'สาย' และจะเพิ่มเวลา Check-in ลงในข้อมูลภายใน -->
-                            ${currentStatus === 'มา' || currentStatus === 'สาย' ? 
-                                `<button class="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-md hover:bg-blue-600 transition duration-150" 
-                                         onclick="addCheckIn('${student.id}')">
-                                    + เช็คอิน
-                                </button>` : ''}
+                            <!-- Removed '+ เช็คอิน' button -->
                         </div>
                     </td>
-                    <!-- Removed 'เวลา Check-in' display column -->
                 `;
                 studentListTableBody.appendChild(row);
             });
@@ -263,26 +256,10 @@
             if (newStatus !== 'มา' && newStatus !== 'สาย') {
                 attendanceStatus[studentId].checkIns = [];
             }
-            
-            renderStudentList(); // Re-render to show/hide + Check-in button
+            // No need to re-render as the '+ เช็คอิน' button is removed
         };
 
-        window.addCheckIn = function(studentId) {
-            const currentTime = getCurrentTimeString();
-            attendanceStatus[studentId] = attendanceStatus[studentId] || { status: '', checkIns: [] };
-            
-            // ตรวจสอบว่าสถานะปัจจุบันเป็น 'มา' หรือ 'สาย' ก่อนเพิ่ม Check-in
-            if (attendanceStatus[studentId].status !== 'มา' && attendanceStatus[studentId].status !== 'สาย') {
-                attendanceStatus[studentId].status = 'มา'; // ตั้งสถานะเป็น 'มา' หากยังไม่ใช่
-            }
-
-            // เพิ่มเวลา Check-in หากยังไม่มีในนาทีปัจจุบัน
-            if (!attendanceStatus[studentId].checkIns.includes(currentTime)) {
-                attendanceStatus[studentId].checkIns.push(currentTime);
-                attendanceStatus[studentId].checkIns.sort(); // จัดเรียงเวลา Check-in
-                renderStudentList(); // Re-render เพื่ออัปเดตสถานะและปุ่ม
-            }
-        };
+        // Removed window.addCheckIn function
 
         // Function to send attendance data to backend and trigger LINE notification
         confirmButton.addEventListener('click', async () => {
@@ -293,40 +270,51 @@
             const todayDate = getTodayDateString();
             let allRecordsSent = true;
 
-            // 1. Send individual attendance records to backend
-            for (const student of studentsData) {
-                // Default status if not set, and include checkIns array
-                const record = attendanceStatus[student.id] || { status: 'ยังไม่เช็คชื่อ', checkIns: [] }; 
+            // 1. Prepare data: Ensure 'มา' or 'สาย' statuses have at least one check-in
+            const studentsToProcess = studentsData.map(student => {
+                const record = attendanceStatus[student.id] || { status: 'ยังไม่เช็คชื่อ', checkIns: [] };
                 
+                // If status is 'มา' or 'สาย' but no check-ins, add one automatically
+                if ((record.status === 'มา' || record.status === 'สาย') && record.checkIns.length === 0) {
+                    const autoCheckInTime = getCurrentTimeString();
+                    record.checkIns.push(autoCheckInTime);
+                    console.log(`Auto-added check-in for ${student.name} (${student.id}): ${autoCheckInTime}`);
+                }
+                return {
+                    studentId: student.id,
+                    studentName: student.name,
+                    date: todayDate,
+                    status: record.status,
+                    checkIns: record.checkIns
+                };
+            });
+
+
+            // 2. Send individual attendance records to backend
+            for (const record of studentsToProcess) {
                 try {
                     const response = await fetch(`${BACKEND_API_BASE_URL}/attendance/record`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            studentId: student.id,
-                            studentName: student.name,
-                            date: todayDate,
-                            status: record.status,
-                            checkIns: record.checkIns // ส่ง checkIns array ไป Backend
-                        }),
+                        body: JSON.stringify(record),
                     });
 
                     if (!response.ok) {
                         const errorData = await response.json();
-                        console.error(`Failed to record attendance for ${student.name}:`, errorData);
+                        console.error(`Failed to record attendance for ${record.studentName}:`, errorData);
                         allRecordsSent = false;
                         // Don't break, try to send other records
                     }
                 } catch (error) {
-                    console.error(`Error sending attendance for ${student.name}:`, error);
+                    console.error(`Error sending attendance for ${record.studentName}:`, error);
                     allRecordsSent = false;
                     // Don't break
                 }
             }
 
-            // 2. Trigger LINE summary and notification on backend
+            // 3. Trigger LINE summary and notification on backend
             if (allRecordsSent) {
                 try {
                     const summaryResponse = await fetch(`${BACKEND_API_BASE_URL}/attendance/summary-and-notify`, {
