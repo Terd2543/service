@@ -4,477 +4,361 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบเช็คชื่อนักเรียน ม.1/10</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- CSS Styles --- */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* เปลี่ยนเป็น flex-start */
-            min-height: 100vh;
-            margin: 20px; /* เพิ่ม margin */
-            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
         }
-
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-
-        .hidden {
-            display: none;
+        ::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
         }
-
-        /* Login Card */
-        .auth-card {
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            max-width: 400px;
-            margin: 50px auto;
-            text-align: center;
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
         }
-        .auth-card input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
-        .auth-card button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .auth-card button:hover {
-            background-color: #0056b3;
-        }
-        .error-message {
-            color: red;
-            margin-top: 10px;
-        }
-
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        h2#current-date {
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        td button {
-            background-color: #4CAF50; /* มา */
-            color: white;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 2px;
-            font-size: 14px;
-        }
-
-        td button.ลา { background-color: #ff9800; }
-        td button.ขาด { background-color: #f44336; }
-        td button.สาย { background-color: #2196F3; }
-
-        td button.active {
-            outline: 2px solid #000; /* ขอบดำเมื่อ Active */
-            outline-offset: 2px;
-        }
-
-        td button:hover {
-            opacity: 0.9;
-        }
-
-        .checkin-count {
-            margin-left: 5px;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        #submit-attendance-btn {
-            background-color: #673AB7; /* สีม่วง */
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 30px;
-            font-size: 18px;
-            transition: background-color 0.3s ease;
-        }
-
-        #submit-attendance-btn:hover {
-            background-color: #512DA8;
-        }
-
-        .loading-spinner {
-            font-size: 1.5em;
-            color: #555;
-            margin-top: 50px;
-        }
-        /* --- End CSS Styles --- */
     </style>
 </head>
-<body>
-    <div class="container">
-        <div id="login-section" class="auth-card">
-            <h2>เข้าสู่ระบบ</h2>
-            <input type="text" id="username" placeholder="ชื่อผู้ใช้ (อีเมล)">
-            <input type="password" id="password" placeholder="รหัสผ่าน">
-            <button id="login-btn">เข้าสู่ระบบ</button>
-            <p id="login-error" class="error-message"></p>
-        </div>
+<body class="flex items-center justify-center min-h-screen p-4">
 
-        <div id="attendance-section" class="hidden">
-            <h1>ระบบเช็คชื่อนักเรียน ม.1/10</h1>
-            <h2 id="current-date"></h2>
-            <table id="attendance-table">
-                <thead>
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl">
+        <h1 class="text-3xl font-bold text-center text-purple-800 mb-4">ระบบเช็คชื่อนักเรียน ม.1/10</h1>
+        <p class="text-center text-gray-600 mb-6 text-lg">วันที่ <span id="currentDate" class="font-semibold text-purple-700"></span></p>
+
+        <div class="overflow-x-auto mb-6">
+            <table class="min-w-full bg-white rounded-lg shadow-md">
+                <thead class="bg-purple-600 text-white">
                     <tr>
-                        <th>ลำดับ</th>
-                        <th>ชื่อนักเรียน</th>
-                        <th>สถานะ</th>
+                        <th class="py-3 px-4 text-left text-sm font-semibold rounded-tl-lg">ลำดับ</th>
+                        <th class="py-3 px-4 text-left text-sm font-semibold">ชื่อนักเรียน</th>
+                        <th class="py-3 px-4 text-left text-sm font-semibold rounded-tr-lg">สถานะ</th>
+                        <!-- Removed 'เวลา Check-in' column header -->
                     </tr>
                 </thead>
-                <tbody>
-                    </tbody>
+                <tbody id="studentList" class="divide-y divide-gray-200">
+                    <!-- Student rows will be injected here by JavaScript -->
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-gray-500">กำลังโหลดรายชื่อนักเรียน...</td>
+                    </tr>
+                </tbody>
             </table>
-            <button id="submit-attendance-btn">ยืนยันการเช็คชื่อและแจ้งเตือน LINE</button>
+        </div>
+
+        <button id="confirmButton"
+                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
+            ยืนยันการเช็คชื่อและแจ้งเตือน LINE
+        </button>
+    </div>
+
+    <!-- Custom Modal for Messages -->
+    <div id="customModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+            <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
+            <p id="modalMessage" class="text-gray-700 mb-6"></p>
+            <button id="modalCloseButton" class="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200">
+                ตกลง
+            </button>
         </div>
     </div>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
-    authDomain: "service-b6c91.firebaseapp.com",
-    projectId: "service-b6c91",
-    storageBucket: "service-b6c91.firebasestorage.app",
-    messagingSenderId: "373682783124",
-    appId: "1:373682783124:web:f7a28733a95247e69b8581",
-    measurementId: "G-8WTMWP04HG"
-  };
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-    <script>
-        // --- JavaScript Logic ---
+        // Your web app's Firebase configuration
+        // *** สำคัญ: แทนที่ค่า YOUR_..._HERE ด้วยข้อมูลจริงจาก Firebase Console ของคุณ ***
+        // ไปที่ Firebase Console -> Project settings -> Your apps -> เลือก Web app ของคุณ
+const firebaseConfig = {
+  apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
+  authDomain: "service-b6c91.firebaseapp.com",
+  projectId: "service-b6c91",
+  storageBucket: "service-b6c91.firebasestorage.app",
+  messagingSenderId: "373682783124",
+  appId: "1:373682783124:web:f7a28733a95247e69b8581",
+  measurementId: "G-8WTMWP04HG"
+};
 
-        // 1. Firebase Client-side Configuration (สำหรับ Authentication และดึงรายชื่อนักเรียน)
-        // *** เปลี่ยนค่าเหล่านี้เป็นค่าของโปรเจกต์ Firebase ของคุณเอง ***
-       
-  // Import the functions you need from the SDKs you need
-  
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         // 2. Backend API URL
-        // *** เปลี่ยนเป็น URL ของ Render Backend ของคุณ ***
-        const BACKEND_API_BASE_URL = 'https://backend-1ghl.onrender.com';
+        // *** สำคัญ: เปลี่ยนเป็น Public URL ของ Render Backend ของคุณ (ไม่มี /api หรือ /webhook ต่อท้าย) ***
+        // ตัวอย่าง: 'https://backend-1ghl.onrender.com'
+        const BACKEND_API_BASE_URL = 'https://backend-1ghl.onrender.com'; 
 
-        // 3. DOM Elements
-        const loginSection = document.getElementById('login-section');
-        const attendanceSection = document.getElementById('attendance-section');
-        const loginBtn = document.getElementById('login-btn');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const loginError = document.getElementById('login-error');
-        const currentDateElem = document.getElementById('current-date');
-        const attendanceTableBody = document.querySelector('#attendance-table tbody');
-        const submitAttendanceBtn = document.getElementById('submit-attendance-btn');
+        // ตัวแปรสำหรับเก็บข้อมูลนักเรียนและสถานะการเช็คชื่อ
+        let studentsData = [];
+        // attendanceStatus จะเก็บ status และ checkIns array (แต่ checkIns จะไม่แสดงผลใน UI)
+        const attendanceStatus = {}; // { studentId: { status: 'มา/ลา/ขาด/สาย', checkIns: ['HH:MM', ...] } }
 
-        let students = []; // เก็บรายชื่อนักเรียน
-        // เปลี่ยนโครงสร้าง attendanceStatus: { studentId: { status: 'มา/ลา/ขาด/สาย', checkIns: [] } }
-        let attendanceData = {}; // เก็บข้อมูลสถานะและ checkIns ของแต่ละนักเรียน
+        // Elements
+        const studentListTableBody = document.getElementById('studentList');
+        const confirmButton = document.getElementById('confirmButton');
+        const currentDateSpan = document.getElementById('currentDate');
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseButton = document.getElementById('modalCloseButton');
 
-        // 4. Utility Functions
-        const getCurrentDate = () => {
+        // Helper function to get today's date in YYYY-MM-DD format
+        function getTodayDateString() {
             const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-            const yyyy = today.getFullYear();
-            return `${dd}/${mm}/${yyyy}`; // สำหรับแสดงผล
-        };
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-        const getFormattedDateForBackend = () => {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd}`; // สำหรับส่งไป Backend (YYYY-MM-DD)
-        };
+        // Helper function to get current time in HH:MM format
+        function getCurrentTimeString() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
 
-        // 5. Render Students Table
-        const renderStudents = async () => {
-            attendanceTableBody.innerHTML = `<tr><td colspan="3" class="loading-spinner">กำลังโหลดรายชื่อนักเรียน...</td></tr>`;
-            const currentDateBackend = getFormattedDateForBackend();
+        // Display custom modal
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+        }
+
+        // Hide custom modal
+        function hideModal() {
+            customModal.classList.add('hidden');
+        }
+
+        // Event listener for modal close button
+        modalCloseButton.addEventListener('click', hideModal);
+
+        // Function to fetch students from Firestore and their attendance for today
+        async function fetchStudents() {
+            studentListTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">กำลังโหลดรายชื่อนักเรียน...</td></tr>';
+            const todayDate = getTodayDateString();
 
             try {
-                // ดึงนักเรียนจาก Firestore ที่มี class เป็น 'ม.1/10'
-                const studentsSnapshot = await db.collection('students').where('class', '==', 'ม.1/10').get();
-                students = studentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Fetch all students from Firestore
+                const studentsCol = collection(db, 'students');
+                // Query students for 'ม.1/10' class
+                const qStudents = query(studentsCol, where('class', '==', 'ม.1/10'));
+                const studentSnapshot = await getDocs(qStudents); 
 
-                // ดึงข้อมูลการเช็คชื่อที่บันทึกไว้แล้วสำหรับวันนี้
-                const attendanceSnapshot = await db.collection('attendance')
-                    .where('date', '==', currentDateBackend)
-                    .get();
+                if (studentSnapshot.empty) {
+                    studentListTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">ไม่พบรายชื่อนักเรียนในชั้น ม.1/10 ในฐานข้อมูล Firebase. โปรดเพิ่มนักเรียนก่อน.</td></tr>';
+                    showModal('ข้อผิดพลาด', 'ไม่พบรายชื่อนักเรียนในชั้น ม.1/10 ในฐานข้อมูล Firebase. โปรดตรวจสอบข้อมูลใน Firestore.');
+                    return;
+                }
 
-                attendanceSnapshot.forEach(doc => {
+                studentsData = studentSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                // Sort students by ID (เลขที่)
+                studentsData.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+                // Fetch today's attendance records
+                const attendanceCol = collection(db, 'attendance');
+                const qAttendance = query(attendanceCol, where('date', '==', todayDate));
+                const attendanceSnapshot = await getDocs(qAttendance);
+
+                attendanceSnapshot.docs.forEach(doc => {
                     const data = doc.data();
-                    attendanceData[data.studentId] = {
+                    attendanceStatus[data.studentId] = {
                         status: data.status,
-                        checkIns: data.checkIns || []
+                        checkIns: data.checkIns || [] // Store checkIns from Firestore
                     };
                 });
 
-                attendanceTableBody.innerHTML = ''; // Clear existing rows
-                students.forEach((student, index) => {
-                    const row = attendanceTableBody.insertRow();
-                    const currentStudentAttendance = attendanceData[student.id] || { status: '', checkIns: [] };
-                    attendanceData[student.id] = currentStudentAttendance; // Initialize if not present
+                renderStudentList();
 
-                    const checkInCount = currentStudentAttendance.checkIns.length;
-                    const statusClass = currentStudentAttendance.status; // 'มา', 'ลา', 'ขาด', 'สาย'
-
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${index + 1}. ${student.name}</td>
-                        <td id="status-${student.id}">
-                            <button data-id="${student.id}" data-type="checkin" class="status-btn ${statusClass === 'มา' ? 'active' : ''}">
-                                เช็คอิน <span class="checkin-count">${checkInCount > 0 ? `(${checkInCount})` : ''}</span>
-                            </button>
-                            <button data-id="${student.id}" data-type="ลา" class="status-btn ลา ${statusClass === 'ลา' ? 'active' : ''}">ลา</button>
-                            <button data-id="${student.id}" data-type="ขาด" class="status-btn ขาด ${statusClass === 'ขาด' ? 'active' : ''}">ขาด</button>
-                            <button data-id="${student.id}" data-type="สาย" class="status-btn สาย ${statusClass === 'สาย' ? 'active' : ''}">สาย</button>
-                        </td>
-                    `;
-
-                    // Attach event listeners to status buttons
-                    const buttons = row.querySelectorAll(`.status-btn[data-id="${student.id}"]`);
-                    buttons.forEach(button => {
-                        button.addEventListener('click', (event) => {
-                            const studentId = event.target.dataset.id;
-                            const type = event.target.dataset.type; // 'checkin', 'ลา', 'ขาด', 'สาย'
-
-                            const studentAttendance = attendanceData[studentId];
-                            const allButtonsForStudent = row.querySelectorAll(`.status-btn`);
-
-                            if (type === 'checkin') {
-                                // Add a new check-in timestamp
-                                studentAttendance.checkIns.push(new Date().toISOString());
-                                studentAttendance.status = 'มา'; // Set overall status to 'มา'
-                                event.target.querySelector('.checkin-count').textContent = `(${studentAttendance.checkIns.length})`;
-
-                                // Deactivate other status buttons
-                                allButtonsForStudent.forEach(btn => {
-                                    if (btn.dataset.type !== 'checkin') {
-                                        btn.classList.remove('active');
-                                    }
-                                });
-                                event.target.classList.add('active'); // Activate 'เช็คอิน' button
-                            } else {
-                                // For 'ลา', 'ขาด', 'สาย'
-                                studentAttendance.status = type; // Set overall status
-                                studentAttendance.checkIns = []; // Clear check-ins
-
-                                // Update UI: activate clicked button, deactivate others (including 'เช็คอิน')
-                                allButtonsForStudent.forEach(btn => btn.classList.remove('active'));
-                                event.target.classList.add('active');
-                                row.querySelector(`.status-btn[data-type="checkin"] .checkin-count`).textContent = ''; // Clear check-in count
-                            }
-                            console.log(`Student ${student.name} (${studentId}) updated:`, studentAttendance);
-                        });
-                    });
-                });
             } catch (error) {
                 console.error("Error fetching students or attendance:", error);
-                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดรายชื่อนักเรียนหรือข้อมูลเช็คชื่อได้: ' + error.message, 'error');
-                attendanceTableBody.innerHTML = `<tr><td colspan="3" class="error-message">ไม่สามารถโหลดรายชื่อนักเรียนได้</td></tr>`;
+                studentListTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</td></tr>`;
+                showModal('ข้อผิดพลาด', `ไม่สามารถโหลดรายชื่อนักเรียนได้: ${error.message}`);
+            }
+        }
+
+        // Function to render/re-render the student list table
+        function renderStudentList() {
+            studentListTableBody.innerHTML = ''; // Clear existing rows
+
+            studentsData.forEach((student, index) => {
+                const currentStatus = attendanceStatus[student.id]?.status || 'ยังไม่เช็คชื่อ';
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition duration-150';
+
+                row.innerHTML = `
+                    <td class="py-3 px-4 text-sm text-gray-800 font-medium">${student.id}</td>
+                    <td class="py-3 px-4 text-sm text-gray-800">${student.name}</td>
+                    <td class="py-3 px-4 text-sm">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status-${student.id}" value="มา" 
+                                    ${currentStatus === 'มา' ? 'checked' : ''} 
+                                    class="form-radio h-4 w-4 text-green-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="ml-2 text-green-700">มา</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status-${student.id}" value="ลา" 
+                                    ${currentStatus === 'ลา' ? 'checked' : ''} 
+                                    class="form-radio h-4 w-4 text-yellow-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="ml-2 text-yellow-700">ลา</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status-${student.id}" value="ขาด" 
+                                    ${currentStatus === 'ขาด' ? 'checked' : ''} 
+                                    class="form-radio h-4 w-4 text-red-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="ml-2 text-red-700">ขาด</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status-${student.id}" value="สาย" 
+                                    ${currentStatus === 'สาย' ? 'checked' : ''} 
+                                    class="form-radio h-4 w-4 text-orange-600" data-student-id="${student.id}" onchange="updateStatus(this)">
+                                <span class="ml-2 text-orange-700">สาย</span>
+                            </label>
+                            <!-- ปุ่ม Check-in จะแสดงเมื่อสถานะเป็น 'มา' หรือ 'สาย' และจะเพิ่มเวลา Check-in ลงในข้อมูลภายใน -->
+                            ${currentStatus === 'มา' || currentStatus === 'สาย' ? 
+                                `<button class="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-md hover:bg-blue-600 transition duration-150" 
+                                         onclick="addCheckIn('${student.id}')">
+                                    + เช็คอิน
+                                </button>` : ''}
+                        </div>
+                    </td>
+                    <!-- Removed 'เวลา Check-in' display column -->
+                `;
+                studentListTableBody.appendChild(row);
+            });
+        }
+
+        // Global function for event handlers (because they are called from inline HTML)
+        window.updateStatus = function(radio) {
+            const studentId = radio.dataset.studentId;
+            const newStatus = radio.value;
+
+            // Update local attendanceStatus
+            attendanceStatus[studentId] = attendanceStatus[studentId] || { status: '', checkIns: [] };
+            attendanceStatus[studentId].status = newStatus;
+
+            // Clear check-ins if status is not 'มา' or 'สาย'
+            if (newStatus !== 'มา' && newStatus !== 'สาย') {
+                attendanceStatus[studentId].checkIns = [];
+            }
+            
+            renderStudentList(); // Re-render to show/hide + Check-in button
+        };
+
+        window.addCheckIn = function(studentId) {
+            const currentTime = getCurrentTimeString();
+            attendanceStatus[studentId] = attendanceStatus[studentId] || { status: '', checkIns: [] };
+            
+            // ตรวจสอบว่าสถานะปัจจุบันเป็น 'มา' หรือ 'สาย' ก่อนเพิ่ม Check-in
+            if (attendanceStatus[studentId].status !== 'มา' && attendanceStatus[studentId].status !== 'สาย') {
+                attendanceStatus[studentId].status = 'มา'; // ตั้งสถานะเป็น 'มา' หากยังไม่ใช่
+            }
+
+            // เพิ่มเวลา Check-in หากยังไม่มีในนาทีปัจจุบัน
+            if (!attendanceStatus[studentId].checkIns.includes(currentTime)) {
+                attendanceStatus[studentId].checkIns.push(currentTime);
+                attendanceStatus[studentId].checkIns.sort(); // จัดเรียงเวลา Check-in
+                renderStudentList(); // Re-render เพื่ออัปเดตสถานะและปุ่ม
             }
         };
 
-        // 6. Login Function (เหมือนเดิม)
-        loginBtn.addEventListener('click', async () => {
-            const email = usernameInput.value;
-            const password = passwordInput.value;
-            loginError.textContent = ''; // Clear previous errors
+        // Function to send attendance data to backend and trigger LINE notification
+        confirmButton.addEventListener('click', async () => {
+            confirmButton.disabled = true;
+            confirmButton.textContent = 'กำลังยืนยัน...';
+            showModal('กำลังดำเนินการ', 'กำลังบันทึกข้อมูลการเช็คชื่อและส่งแจ้งเตือน LINE...');
 
-            if (!email || !password) {
-                loginError.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
-                return;
-            }
+            const todayDate = getTodayDateString();
+            let allRecordsSent = true;
 
-            try {
-                Swal.fire({
-                    title: 'กำลังเข้าสู่ระบบ...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                // ใช้ Firebase Client SDK เพื่อ Login
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                console.log('Logged in user:', userCredential.user.uid);
-
-                // หลังจาก Login สำเร็จ ให้ซ่อนหน้า Login และแสดงหน้าเช็คชื่อ
-                loginSection.classList.add('hidden');
-                attendanceSection.classList.remove('hidden');
-                currentDateElem.textContent = `วันที่ ${getCurrentDate()}`;
-                await renderStudents(); // โหลดรายชื่อนักเรียนหลังจาก Login
-
-                Swal.close(); // ปิด loading alert
-                Swal.fire('เข้าสู่ระบบสำเร็จ', 'ยินดีต้อนรับสู่ระบบเช็คชื่อ!', 'success');
-
-            } catch (error) {
-                Swal.close(); // ปิด loading alert
-                console.error("Login error:", error.message);
-                let errorMessage = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    errorMessage = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'รูปแบบอีเมลไม่ถูกต้อง';
-                }
-                loginError.textContent = errorMessage;
-                Swal.fire('เข้าสู่ระบบไม่สำเร็จ', errorMessage, 'error');
-            }
-        });
-
-        // 7. Submit Attendance Function (ปรับปรุง)
-        submitAttendanceBtn.addEventListener('click', async () => {
-            // ตรวจสอบว่าเช็คชื่อครบทุกคนหรือไม่
-            const unCheckedStudents = students.filter(student => !attendanceData[student.id] || attendanceData[student.id].status === '');
-            if (unCheckedStudents.length > 0) {
-                const studentNames = unCheckedStudents.map(s => s.name).join(', ');
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ยังเช็คชื่อไม่ครบ',
-                    text: `นักเรียนเหล่านี้ยังไม่ได้เช็คชื่อ: ${studentNames}`,
-                    confirmButtonText: 'ตกลง'
-                });
-                return;
-            }
-
-            Swal.fire({
-                title: 'กำลังบันทึกและแจ้งเตือน...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            try {
-                const currentDateBackend = getFormattedDateForBackend();
-
-                // 7.1 ส่งข้อมูลการเช็คชื่อแต่ละคนไป Backend
-                const recordPromises = students.map(student => {
-                    const dataToSend = {
-                        studentId: student.id,
-                        studentName: student.name,
-                        date: currentDateBackend,
-                        status: attendanceData[student.id].status,
-                        checkIns: attendanceData[student.id].checkIns // ส่ง array ของ checkIns ไปด้วย
-                    };
-                    return fetch(`${BACKEND_API_BASE_URL}/attendance/record`, {
+            // 1. Send individual attendance records to backend
+            for (const student of studentsData) {
+                // Default status if not set, and include checkIns array
+                const record = attendanceStatus[student.id] || { status: 'ยังไม่เช็คชื่อ', checkIns: [] }; 
+                
+                try {
+                    const response = await fetch(`${BACKEND_API_BASE_URL}/attendance/record`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(dataToSend)
-                    }).then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => { throw new Error(err.message || 'Failed to record attendance for ' + student.name); });
-                        }
-                        return response.json();
+                        body: JSON.stringify({
+                            studentId: student.id,
+                            studentName: student.name,
+                            date: todayDate,
+                            status: record.status,
+                            checkIns: record.checkIns // ส่ง checkIns array ไป Backend
+                        }),
                     });
-                });
 
-                await Promise.all(recordPromises);
-
-                // 7.2 ส่งคำขอให้ Backend สรุปผลและส่ง LINE Notification
-                const summaryResponse = await fetch(`${BACKEND_API_BASE_URL}/attendance/summary-and-notify?date=${currentDateBackend}`, {
-                    method: 'GET',
-                    headers: {
-                        // หาก Backend ต้องการ Auth Token, คุณต้องส่ง idToken ที่ได้จาก Firebase Login
-                        // 'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error(`Failed to record attendance for ${student.name}:`, errorData);
+                        allRecordsSent = false;
+                        // Don't break, try to send other records
                     }
-                });
-
-                if (!summaryResponse.ok) {
-                    const errorData = await summaryResponse.json();
-                    throw new Error(errorData.message || 'Failed to get summary or send LINE notification.');
+                } catch (error) {
+                    console.error(`Error sending attendance for ${student.name}:`, error);
+                    allRecordsSent = false;
+                    // Don't break
                 }
-
-                const summaryData = await summaryResponse.json();
-                console.log('Summary and Line Notify result:', summaryData);
-
-                Swal.fire('เช็คชื่อสำเร็จ!', 'ข้อมูลถูกบันทึกและส่งแจ้งเตือน LINE เรียบร้อยแล้ว', 'success');
-
-            } catch (error) {
-                console.error("Error submitting attendance:", error);
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกหรือแจ้งเตือนได้: ' + error.message, 'error');
             }
-        });
 
-        // Initial load: Check if user is already logged in (optional, but good UX)
-        // เมื่อโหลดหน้าเว็บ: ตรวจสอบสถานะการ Login ของผู้ใช้
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // ถ้ามีผู้ใช้ Login อยู่
-                loginSection.classList.add('hidden');
-                attendanceSection.classList.remove('hidden');
-                currentDateElem.textContent = `วันที่ ${getCurrentDate()}`;
-                renderStudents(); // โหลดรายชื่อนักเรียน
+            // 2. Trigger LINE summary and notification on backend
+            if (allRecordsSent) {
+                try {
+                    const summaryResponse = await fetch(`${BACKEND_API_BASE_URL}/attendance/summary-and-notify`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ date: todayDate }), // Send date to backend for summary
+                    });
+
+                    if (summaryResponse.ok) {
+                        showModal('สำเร็จ!', 'บันทึกการเช็คชื่อและส่งแจ้งเตือน LINE เรียบร้อยแล้ว');
+                    } else {
+                        const errorData = await summaryResponse.json();
+                        console.error('Failed to send LINE summary:', errorData);
+                        showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่ไม่สามารถส่งแจ้งเตือน LINE ได้: ${errorData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error triggering LINE summary:', error);
+                    showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อส่งแจ้งเตือน LINE: ${error.message}`);
+                }
             } else {
-                // ถ้ายังไม่มีผู้ใช้ Login
-                loginSection.classList.remove('hidden');
-                attendanceSection.classList.add('hidden');
+                showModal('ข้อผิดพลาดบางส่วน', 'มีบางรายการเช็คชื่อที่ไม่สามารถบันทึกได้ โปรดตรวจสอบ Console สำหรับรายละเอียด');
             }
+
+            confirmButton.disabled = false;
+            confirmButton.textContent = 'ยืนยันการเช็คชื่อและแจ้งเตือน LINE';
+            fetchStudents(); // Refresh data after submission
         });
 
-        // --- End JavaScript Logic ---
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            currentDateSpan.textContent = new Date().toLocaleDateString('th-TH', { dateStyle: 'long' });
+            fetchStudents();
+        });
     </script>
 </body>
 </html>
