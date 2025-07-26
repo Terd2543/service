@@ -43,7 +43,6 @@
                         <th class="py-3 px-4 text-left text-sm font-semibold rounded-tl-lg">ลำดับ</th>
                         <th class="py-3 px-4 text-left text-sm font-semibold">ชื่อนักเรียน</th>
                         <th class="py-3 px-4 text-left text-sm font-semibold rounded-tr-lg">สถานะ</th>
-                        <!-- Removed 'เวลา Check-in' column header -->
                     </tr>
                 </thead>
                 <tbody id="studentList" class="divide-y divide-gray-200">
@@ -80,7 +79,7 @@
         // Your web app's Firebase configuration
         // *** สำคัญ: แทนที่ค่า YOUR_..._HERE ด้วยข้อมูลจริงจาก Firebase Console ของคุณ ***
         // ไปที่ Firebase Console -> Project settings -> Your apps -> เลือก Web app ของคุณ
-const firebaseConfig = {
+        const firebaseConfig = {
   apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
   authDomain: "service-b6c91.firebaseapp.com",
   projectId: "service-b6c91",
@@ -89,7 +88,6 @@ const firebaseConfig = {
   appId: "1:373682783124:web:f7a28733a95247e69b8581",
   measurementId: "G-8WTMWP04HG"
 };
-
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -199,7 +197,12 @@ const firebaseConfig = {
             studentListTableBody.innerHTML = ''; // Clear existing rows
 
             studentsData.forEach((student, index) => {
-                const currentStatus = attendanceStatus[student.id]?.status || 'ยังไม่เช็คชื่อ';
+                // ถ้ายังไม่มีสถานะสำหรับวันนี้ ให้ตั้งค่าเริ่มต้นเป็น 'มา'
+                const currentStatus = attendanceStatus[student.id]?.status || 'มา'; 
+                // ตรวจสอบและตั้งค่าเริ่มต้นใน attendanceStatus ด้วย
+                if (!attendanceStatus[student.id]) {
+                    attendanceStatus[student.id] = { status: 'มา', checkIns: [] };
+                }
 
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition duration-150';
