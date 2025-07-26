@@ -77,15 +77,15 @@
         import { getFirestore, collection, getDocs, doc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration
-        // *** อัปเดตด้วยค่าที่คุณให้มาล่าสุด ***
+        // *** สำคัญ: แทนที่ค่า YOUR_..._HERE ด้วยข้อมูลจริงจาก Firebase Console ของคุณ ***
+        // ไปที่ Firebase Console -> Project settings -> Your apps -> เลือก Web app ของคุณ
         const firebaseConfig = {
-            apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
-            authDomain: "service-b6c91.firebaseapp.com",
-            projectId: "service-b6c91",
-            storageBucket: "service-b6c91.firebasestorage.app",
-            messagingSenderId: "373682783124",
-            appId: "1:373682783124:web:f7a28733a95247e69b8581",
-            measurementId: "G-8WTMWP04HG"
+            apiKey: "YOUR_FIREBASE_API_KEY_HERE", // ตัวอย่าง: "AIzaSyC..."
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // ตัวอย่าง: "my-project-12345.firebaseapp.com"
+            projectId: "YOUR_PROJECT_ID_HERE", // ตัวอย่าง: "my-project-12345"
+            storageBucket: "YOUR_PROJECT_ID.appspot.com", // ตัวอย่าง: "my-project-12345.appspot.com"
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID_HERE", // ตัวอย่าง: "1234567890"
+            appId: "YOUR_APP_ID_HERE" // ตัวอย่าง: "1:1234567890:web:abcdef1234567890"
         };
 
         // Initialize Firebase
@@ -235,9 +235,15 @@
                                     class="form-radio h-4 w-4 text-orange-600" data-student-id="${student.id}" onchange="updateStatus(this)">
                                 <span class="ml-2 text-orange-700">สาย</span>
                             </label>
-                            <!-- Removed '+ เช็คอิน' button -->
+                            <!-- ปุ่ม Check-in จะแสดงเมื่อสถานะเป็น 'มา' หรือ 'สาย' และจะเพิ่มเวลา Check-in ลงในข้อมูลภายใน -->
+                            ${currentStatus === 'มา' || currentStatus === 'สาย' ? 
+                                `<button class="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-md hover:bg-blue-600 transition duration-150" 
+                                         onclick="addCheckIn('${student.id}')">
+                                    + เช็คอิน
+                                </button>` : ''}
                         </div>
                     </td>
+                    <!-- Removed 'เวลา Check-in' display column -->
                 `;
                 studentListTableBody.appendChild(row);
             });
@@ -256,10 +262,26 @@
             if (newStatus !== 'มา' && newStatus !== 'สาย') {
                 attendanceStatus[studentId].checkIns = [];
             }
-            // No need to re-render as the '+ เช็คอิน' button is removed
+            
+            renderStudentList(); // Re-render to show/hide + Check-in button
         };
 
-        // Removed window.addCheckIn function
+        window.addCheckIn = function(studentId) {
+            const currentTime = getCurrentTimeString();
+            attendanceStatus[studentId] = attendanceStatus[studentId] || { status: '', checkIns: [] };
+            
+            // ตรวจสอบว่าสถานะปัจจุบันเป็น 'มา' หรือ 'สาย' ก่อนเพิ่ม Check-in
+            if (attendanceStatus[studentId].status !== 'มา' && attendanceStatus[studentId].status !== 'สาย') {
+                attendanceStatus[studentId].status = 'มา'; // ตั้งสถานะเป็น 'มา' หากยังไม่ใช่
+            }
+
+            // เพิ่มเวลา Check-in หากยังไม่มีในนาทีปัจจุบัน
+            if (!attendanceStatus[studentId].checkIns.includes(currentTime)) {
+                attendanceStatus[studentId].checkIns.push(currentTime);
+                attendanceStatus[studentId].checkIns.sort(); // จัดเรียงเวลา Check-in
+                renderStudentList(); // Re-render เพื่ออัปเดตสถานะและปุ่ม
+            }
+        };
 
         // Function to send attendance data to backend and trigger LINE notification
         confirmButton.addEventListener('click', async () => {
