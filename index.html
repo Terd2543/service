@@ -179,13 +179,7 @@
             <button id="submit-attendance-btn">ยืนยันการเช็คชื่อและแจ้งเตือน LINE</button>
         </div>
     </div>
-
-    <script>
-        // --- JavaScript Logic ---
-
-        // 1. Firebase Client-side Configuration (สำหรับ Authentication และดึงรายชื่อนักเรียน)
-        // *** เปลี่ยนค่าเหล่านี้เป็นค่าของโปรเจกต์ Firebase ของคุณเอง ***
-       
+<script type="module">
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
@@ -207,8 +201,15 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
+</script>
+    <script>
+        // --- JavaScript Logic ---
 
-
+        // 1. Firebase Client-side Configuration (สำหรับ Authentication และดึงรายชื่อนักเรียน)
+        // *** เปลี่ยนค่าเหล่านี้เป็นค่าของโปรเจกต์ Firebase ของคุณเอง ***
+       
+  // Import the functions you need from the SDKs you need
+  
         // 2. Backend API URL
         // *** เปลี่ยนเป็น URL ของ Render Backend ของคุณ ***
         const BACKEND_API_BASE_URL = 'https://backend-1ghl.onrender.com';
