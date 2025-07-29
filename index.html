@@ -420,12 +420,12 @@
                     <td class="py-3 px-4 text-sm">
                         <div class="flex flex-wrap gap-2 items-center">
                             <label class="custom-radio-label status-มา">
-                                <input type="radio" name="status-${student.id}" value="มา" 
-                                    ${currentStatus === 'มา' ? 'checked' : ''} 
-                                    data-student-id="${student.id}" onchange="updateStatus(this)">
-                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
-                                <span class="ml-2 text-green-700">มา</span>
-                            </label>
+                                    <input type="radio" name="status-${student.id}" value="มา" 
+                                        ${newStatus === 'มา' ? 'checked' : ''} 
+                                        data-student-id="${student.id}" onchange="updateStatus(this)">
+                                    <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                    <span class="ml-2 text-green-700">มา</span>
+                                </label>
                             <label class="custom-radio-label status-ลา">
                                 <input type="radio" name="status-${student.id}" value="ลา" 
                                     ${currentStatus === 'ลา' ? 'checked' : ''} 
