@@ -1,551 +1,563 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบเช็คชื่อนักเรียน ม.1/10</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* CSS สวยๆ สำหรับปุ่มเช็คชื่อที่ปรับปรุงใหม่ */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Light gray background */
-        }
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #e0e0e0;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเช็คชื่อนักเรียน ม.1/10 (ปรับปรุง)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* CSS สวยๆ สำหรับปุ่มเช็คชื่อที่ปรับปรุงใหม่ */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
-        /* Custom Button Shadows and Text Shadows for "เวอร์" Look */
-        .shadow-3xl {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4),
-                        0 6px 6px rgba(0, 0, 0, 0.23),
-                        inset 0 2px 4px rgba(255, 255, 255, 0.2);
-        }
-        .text-shadow-lg {
-            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
-        }
+        /* Custom Button Shadows and Text Shadows for "เวอร์" Look */
+        .shadow-3xl {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4),
+                        0 6px 6px rgba(0, 0, 0, 0.23),
+                        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+        .text-shadow-lg {
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+        }
 
-        /* --- Custom Radio Button Styles --- */
-        .custom-radio-label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-            user-select: none;
-            padding: 6px 10px;
-            border-radius: 8px;
-            transition: background-color 0.2s ease-in-out;
-            margin-right: 8px;
-        }
+        /* --- Custom Radio Button Styles --- */
+        .custom-radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            margin-right: 8px;
+        }
+        .custom-radio-label input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .custom-radio-label .radio-outer-circle {
+            height: 22px;
+            width: 22px;
+            min-width: 22px;
+            border: 2px solid #a0a0a0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+            margin-right: 8px;
+            background-color: #f0f0f0;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .custom-radio-label .radio-inner-dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background-color: #6a0dad;
+            transform: scale(0);
+            transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+            opacity: 0;
+        }
+        .custom-radio-label input[type="radio"]:checked + .radio-outer-circle {
+            border-color: #6a0dad;
+            background: linear-gradient(145deg, #e0e0e0, #f9f9f9);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), 0 0 10px rgba(106, 13, 173, 0.4);
+        }
+        .custom-radio-label input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .custom-radio-label:hover {
+            background-color: rgba(106, 13, 173, 0.05);
+            transform: translateY(-2px);
+        }
+        .custom-radio-label:hover .radio-outer-circle {
+            border-color: #9b59b6;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 0 8px rgba(106, 13, 173, 0.2);
+        }
+        /* Specific colors for inner dot based on status */
+        .custom-radio-label.status-มา input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #22c55e; /* Green for มา */
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+        }
+        .custom-radio-label.status-ลา input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #eab308; /* Yellow for ลา */
+            box-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
+        }
+        .custom-radio-label.status-ขาด input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #ef4444; /* Red for ขาด */
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        .custom-radio-label.status-สาย input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
+            background-color: #f97316; /* Orange for สาย */
+            box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+        }
+        /* Color specific styles for the text */
+        .text-green-700 { color: #15803d; }
+        .text-yellow-700 { color: #a16207; }
+        .text-red-700 { color: #b91c1c; }
+        .text-orange-700 { color: #c2410c; }
+        /* --- Full-page Loading Overlay Styles (Normal Metal Spinner) --- */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8); /* Darker, slightly transparent background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Ensure it's on top */
+            color: white;
+            font-size: 1.5rem;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+            opacity: 0; /* Start hidden */
+            visibility: hidden; /* Start hidden */
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        #loadingOverlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .metal-spinner-container {
+            position: relative;
+            width: 60px; /* Size of the spinner */
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .metal-spinner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 6px solid #e0e0e0; /* Light gray base */
+            border-top-color: #6a0dad; /* Purple top */
+            animation: spin 1s linear infinite;
+            background: linear-gradient(135deg, #c0c0c0, #f0f0f0, #c0c0c0); /* Metallic gradient */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3), 0 0 15px rgba(106, 13, 173, 0.5); /* Inner shadow and purple glow */
+        }
+        .metal-spinner::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            border: 4px solid #f0f0f0; /* Inner ring */
+            border-bottom-color: #9b59b6; /* Lighter purple bottom */
+            animation: spin-reverse 1.5s linear infinite; /* Spin in reverse */
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.2), 0 0 10px rgba(155, 89, 182, 0.4); /* Inner shadow and lighter purple glow */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes spin-reverse {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(-360deg); }
+        }
+        .loading-text-overlay {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.7);
+        }
+        
+        /* New animated button CSS */
+        .animated-button {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease-in-out;
+            background-size: 200% auto;
+        }
 
-        .custom-radio-label input[type="radio"] {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-        }
+        .animated-button:hover {
+            background-position: right center; /* change the direction of the change*/
+            transform: scale(1.05);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .animated-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            opacity: 0;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            z-index: -1;
+        }
 
-        .custom-radio-label .radio-outer-circle {
-            height: 22px;
-            width: 22px;
-            min-width: 22px;
-            border: 2px solid #a0a0a0;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s ease-in-out;
-            margin-right: 8px;
-            background-color: #f0f0f0;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
-        }
+        .animated-button:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
 
-        .custom-radio-label .radio-inner-dot {
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
-            background-color: #6a0dad;
-            transform: scale(0);
-            transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
-            opacity: 0;
-        }
-
-        .custom-radio-label input[type="radio"]:checked + .radio-outer-circle {
-            border-color: #6a0dad;
-            background: linear-gradient(145deg, #e0e0e0, #f9f9f9);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), 0 0 10px rgba(106, 13, 173, 0.4);
-        }
-
-        .custom-radio-label input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        .custom-radio-label:hover {
-            background-color: rgba(106, 13, 173, 0.05);
-        }
-
-        .custom-radio-label:hover .radio-outer-circle {
-            border-color: #9b59b6;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 0 8px rgba(106, 13, 173, 0.2);
-        }
-
-        /* Specific colors for inner dot based on status */
-        .custom-radio-label.status-มา input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
-            background-color: #22c55e; /* Green for มา */
-            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
-        }
-        .custom-radio-label.status-ลา input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
-            background-color: #eab308; /* Yellow for ลา */
-            box-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
-        }
-        .custom-radio-label.status-ขาด input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
-            background-color: #ef4444; /* Red for ขาด */
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-        }
-        .custom-radio-label.status-สาย input[type="radio"]:checked + .radio-outer-circle .radio-inner-dot {
-            background-color: #f97316; /* Orange for สาย */
-            box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
-        }
-
-        /* Color specific styles for the text */
-        .text-green-700 { color: #15803d; }
-        .text-yellow-700 { color: #a16207; }
-        .text-red-700 { color: #b91c1c; }
-        .text-orange-700 { color: #c2410c; }
-
-        /* --- Full-page Loading Overlay Styles (Normal Metal Spinner) --- */
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8); /* Darker, slightly transparent background */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999; /* Ensure it's on top */
-            color: white;
-            font-size: 1.5rem;
-            text-shadow: 0 0 5px rgba(255,255,255,0.3);
-            opacity: 0; /* Start hidden */
-            visibility: hidden; /* Start hidden */
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-
-        #loadingOverlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .metal-spinner-container {
-            position: relative;
-            width: 60px; /* Size of the spinner */
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .metal-spinner {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 6px solid #e0e0e0; /* Light gray base */
-            border-top-color: #6a0dad; /* Purple top */
-            animation: spin 1s linear infinite;
-            background: linear-gradient(135deg, #c0c0c0, #f0f0f0, #c0c0c0); /* Metallic gradient */
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3), 0 0 15px rgba(106, 13, 173, 0.5); /* Inner shadow and purple glow */
-        }
-
-        .metal-spinner::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            border-radius: 50%;
-            border: 4px solid #f0f0f0; /* Inner ring */
-            border-bottom-color: #9b59b6; /* Lighter purple bottom */
-            animation: spin-reverse 1.5s linear infinite; /* Spin in reverse */
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.2), 0 0 10px rgba(155, 89, 182, 0.4); /* Inner shadow and lighter purple glow */
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes spin-reverse {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(-360deg); }
-        }
-
-        .loading-text-overlay {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(255,255,255,0.7);
-        }
-
-    </style>
+    </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-        <div id="loadingOverlay" class="hidden">
-        <div class="metal-spinner-container">
-            <div class="metal-spinner"></div>
-        </div>
-        <span class="loading-text-overlay">กำลังโหลด...</span>
-    </div>
+    <div id="loadingOverlay" class="hidden">
+        <div class="metal-spinner-container">
+            <div class="metal-spinner"></div>
+        </div>
+        <span class="loading-text-overlay">กำลังโหลด...</span>
+    </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl">
-        <h1 class="text-3xl font-bold text-center text-purple-800 mb-4">ระบบเช็คชื่อนักเรียน ม.1/10</h1>
-        <p class="text-center text-gray-600 mb-6 text-lg">วันที่ <span id="currentDate" class="font-semibold text-purple-700"></span></p>
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl">
+        <h1 class="text-3xl font-bold text-center text-purple-800 mb-4">ระบบเช็คชื่อนักเรียน ม.1/10</h1>
+        <p class="text-center text-gray-600 mb-6 text-lg">วันที่ <span id="currentDate" class="font-semibold text-purple-700"></span></p>
 
-        <div class="overflow-x-auto mb-6">
-            <table class="min-w-full bg-white rounded-lg shadow-md">
-                <thead class="bg-purple-600 text-white">
-                    <tr>
-                        <th class="py-3 px-4 text-left text-sm font-semibold rounded-tl-lg">ลำดับ</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold">ชื่อนักเรียน</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold rounded-tr-lg">สถานะ</th>
-                    </tr>
-                </thead>
-                <tbody id="studentList" class="divide-y divide-gray-200">
-                                        <tr>
-                        <td colspan="3" class="text-center py-4 text-gray-500">กำลังโหลดรายชื่อนักเรียน...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <div class="overflow-x-auto mb-6">
+            <table class="min-w-full bg-white rounded-lg shadow-md">
+                <thead class="bg-purple-600 text-white">
+                    <tr>
+                        <th class="py-3 px-4 text-left text-sm font-semibold rounded-tl-lg">ลำดับ</th>
+                        <th class="py-3 px-4 text-left text-sm font-semibold">ชื่อนักเรียน</th>
+                        <th class="py-3 px-4 text-left text-sm font-semibold rounded-tr-lg">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody id="studentList" class="divide-y divide-gray-200">
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-gray-500">กำลังโหลดรายชื่อนักเรียน...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <button id="confirmButton"
-                class="w-full bg-gradient-to-br from-purple-800 via-indigo-700 to-blue-600 text-white font-bold py-4 px-8 rounded-2xl shadow-3xl
-                       relative overflow-hidden
-                       hover:from-purple-900 hover:via-indigo-800 hover:to-blue-700
-                       transition-all duration-300 ease-in-out
-                       transform hover:scale-105 active:scale-95
-                       focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-75
-                       flex items-center justify-center space-x-3
-                       border border-white border-opacity-20
-                       group">
-            <span id="buttonText" class="relative z-10 text-shadow-lg">ยืนยันการเช็คชื่อและแจ้งเตือน LINE</span>
-                        <div class="absolute inset-0 bg-white opacity-10 blur-sm pointer-events-none rounded-2xl"></div>
-        </button>
-    </div>
+        <button id="confirmButton"
+                class="w-full bg-gradient-to-br from-purple-800 via-indigo-700 to-blue-600 text-white font-bold py-4 px-8 rounded-2xl shadow-3xl
+                        relative overflow-hidden animated-button
+                        group">
+            <span id="buttonText" class="relative z-10 text-shadow-lg">ยืนยันการเช็คชื่อและแจ้งเตือน LINE</span>
+            <div class="absolute inset-0 bg-white opacity-10 blur-sm pointer-events-none rounded-2xl"></div>
+        </button>
+    </div>
 
-        <div id="customModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-            <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
-            <p id="modalMessage" class="text-gray-700 mb-6"></p>
-            <button id="modalCloseButton" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-700 transition duration-300 transform hover:scale-105">
-                ตกลง
-            </button>
-        </div>
-    </div>
+    <div id="customModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+            <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
+            <p id="modalMessage" class="text-gray-700 mb-6"></p>
+            <button id="modalCloseButton" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-700 transition duration-300 transform hover:scale-105">
+                ตกลง
+            </button>
+        </div>
+    </div>
 
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
-            authDomain: "service-b6c91.firebaseapp.com",
-            projectId: "service-b6c91",
-            storageBucket: "service-b6c91.firebasestorage.app",
-            messagingSenderId: "373682783124",
-            appId: "1:373682783124:web:f7a28733a95247e69b8581",
-            measurementId: "G-8WTMWP04HG"
-        };
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFgeVSJrziYLDToRja4r5B3HOGfvvmGfM",
+            authDomain: "service-b6c91.firebaseapp.com",
+            projectId: "service-b6c91",
+            storageBucket: "service-b6c91.firebasestorage.app",
+            messagingSenderId: "373682783124",
+            appId: "1:373682783124:web:f7a28733a95247e69b8581",
+            measurementId: "G-8WTMWP04HG"
+        };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        // 2. Backend API URL
-        const BACKEND_API_BASE_URL = 'https://backend-1ghl.onrender.com'; 
+        // 2. Backend API URL
+        const BACKEND_API_BASE_URL = 'https://backend-1ghl.onrender.com'; 
 
-        // ตัวแปรสำหรับเก็บข้อมูลนักเรียนและสถานะการเช็คชื่อ
-        let studentsData = [];
-        const attendanceStatus = {}; // { studentId: { status: 'มา/ลา/ขาด/สาย', checkIns: ['HH:MM', ...] } }
+        // ตัวแปรสำหรับเก็บข้อมูลนักเรียนและสถานะการเช็คชื่อ
+        let studentsData = [];
+        const attendanceStatus = {}; // { studentId: { status: 'มา/ลา/ขาด/สาย', checkIns: ['HH:MM', ...] } }
 
-        // Elements
-        const studentListTableBody = document.getElementById('studentList');
-        const confirmButton = document.getElementById('confirmButton');
-        const buttonText = document.getElementById('buttonText'); 
-        const currentDateSpan = document.getElementById('currentDate');
-        const customModal = document.getElementById('customModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalCloseButton = document.getElementById('modalCloseButton');
-        const loadingOverlay = document.getElementById('loadingOverlay'); // Element for full-page overlay
+        // Elements
+        const studentListTableBody = document.getElementById('studentList');
+        const confirmButton = document.getElementById('confirmButton');
+        const buttonText = document.getElementById('buttonText'); 
+        const currentDateSpan = document.getElementById('currentDate');
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseButton = document.getElementById('modalCloseButton');
+        const loadingOverlay = document.getElementById('loadingOverlay'); // Element for full-page overlay
 
-        // Helper function to get today's date in YYYY-MM-DD format
-        function getTodayDateString() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-            const day = String(today.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+        // Helper function to get today's date in YYYY-MM-DD format
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-        // Helper function to get current time in HH:MM format
-        function getCurrentTimeString() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${hours}:${minutes}`;
-        }
+        // Helper function to get current time in HH:MM format
+        function getCurrentTimeString() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
 
-        // Display custom modal (now only for success/error, no loading state)
-        function showModal(title, message) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            customModal.classList.remove('hidden');
-        }
+        // Display custom modal (now only for success/error, no loading state)
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+        }
 
-        // Hide custom modal
-        function hideModal() {
-            customModal.classList.add('hidden');
-        }
+        // Hide custom modal
+        function hideModal() {
+            customModal.classList.add('hidden');
+        }
 
-        // Show full-page loading overlay
-        function showLoadingOverlay() {
-            loadingOverlay.classList.add('visible'); // Use 'visible' class for transition
-            confirmButton.disabled = true;
-        }
+        // Show full-page loading overlay
+        function showLoadingOverlay() {
+            loadingOverlay.classList.add('visible'); // Use 'visible' class for transition
+            confirmButton.disabled = true;
+        }
 
-        // Hide full-page loading overlay
-        function hideLoadingOverlay() {
-            loadingOverlay.classList.remove('visible'); // Use 'visible' class for transition
-            confirmButton.disabled = false;
-        }
+        // Hide full-page loading overlay
+        function hideLoadingOverlay() {
+            loadingOverlay.classList.remove('visible'); // Use 'visible' class for transition
+            confirmButton.disabled = false;
+        }
 
-        // Event listener for modal close button
-        modalCloseButton.addEventListener('click', hideModal);
+        // Event listener for modal close button
+        modalCloseButton.addEventListener('click', hideModal);
 
-        // Function to fetch students from Firestore and their attendance for today
-        async function fetchStudents() {
-            studentListTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">กำลังโหลดรายชื่อนักเรียน...</td></tr>';
-            const todayDate = getTodayDateString();
+        // Function to fetch students from Firestore and their attendance for today
+        async function fetchStudents() {
+            studentListTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">กำลังโหลดรายชื่อนักเรียน...</td></tr>';
+            const todayDate = getTodayDateString();
 
-            try {
-                // Fetch all students from Firestore
-                const studentsCol = collection(db, 'students');
-                // Query students for 'ม.1/10' class
-                const qStudents = query(studentsCol, where('class', '==', 'ม.1/10'));
-                const studentSnapshot = await getDocs(qStudents); 
+            try {
+                // Fetch all students from Firestore
+                const studentsCol = collection(db, 'students');
+                // Query students for 'ม.1/10' class
+                const qStudents = query(studentsCol, where('class', '==', 'ม.1/10'));
+                const studentSnapshot = await getDocs(qStudents); 
 
-                if (studentSnapshot.empty) {
-                    studentListTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">ไม่พบรายชื่อนักเรียนในชั้น ม.1/10 ในฐานข้อมูล Firebase. โปรดเพิ่มนักเรียนก่อน.</td></tr>';
-                    showModal('ข้อผิดพลาด', 'ไม่พบรายชื่อนักเรียนในชั้น ม.1/10 ในฐานข้อมูล Firebase. โปรดตรวจสอบข้อมูลใน Firestore.');
-                    return;
-                }
+                if (studentSnapshot.empty) {
+                    studentListTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">ไม่พบรายชื่อนักเรียนในชั้น ม.1/10 ในฐานข้อมูล Firebase. โปรดเพิ่มนักเรียนก่อน.</td></tr>';
+                    showModal('ข้อผิดพลาด', 'ไม่พบรายชื่อนักเรียนในชั้น ม.1/10 ในฐานข้อมูล Firebase. โปรดตรวจสอบข้อมูลใน Firestore.');
+                    return;
+                }
 
-                studentsData = studentSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                studentsData = studentSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
 
-                // Sort students by ID (เลขที่)
-                studentsData.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+                // Sort students by ID (เลขที่)
+                studentsData.sort((a, b) => parseInt(a.id) - parseInt(b.id));
 
-                // Fetch today's attendance records
-                const attendanceCol = collection(db, 'attendance');
-                const qAttendance = query(attendanceCol, where('date', '==', todayDate));
-                const attendanceSnapshot = await getDocs(qAttendance);
+                // Fetch today's attendance records
+                const attendanceCol = collection(db, 'attendance');
+                const qAttendance = query(attendanceCol, where('date', '==', todayDate));
+                const attendanceSnapshot = await getDocs(qAttendance);
 
-                attendanceSnapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    attendanceStatus[data.studentId] = {
-                        status: data.status,
-                        checkIns: data.checkIns || [] // Store checkIns from Firestore
-                    };
-                });
+                attendanceSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    attendanceStatus[data.studentId] = {
+                        status: data.status,
+                        checkIns: data.checkIns || [] // Store checkIns from Firestore
+                    };
+                });
 
-                renderStudentList();
+                renderStudentList();
 
-            } catch (error) {
-                console.error("Error fetching students or attendance:", error);
-                studentListTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</td></tr>`;
-                showModal('ข้อผิดพลาด', `ไม่สามารถโหลดรายชื่อนักเรียนได้: ${error.message}`);
-            }
-        }
+            } catch (error) {
+                console.error("Error fetching students or attendance:", error);
+                studentListTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</td></tr>`;
+                showModal('ข้อผิดพลาด', `ไม่สามารถโหลดรายชื่อนักเรียนได้: ${error.message}`);
+            }
+        }
 
-        // Function to render/re-render the student list table
-        function renderStudentList() {
-            studentListTableBody.innerHTML = ''; // Clear existing rows
+        // Function to render/re-render the student list table
+        function renderStudentList() {
+            studentListTableBody.innerHTML = ''; // Clear existing rows
 
-            studentsData.forEach((student) => {
-                // ถ้ายังไม่มีสถานะสำหรับวันนี้ ให้ตั้งค่าเริ่มต้นเป็น 'มา'
-                const currentStatus = attendanceStatus[student.id]?.status || 'มา'; 
-                // ตรวจสอบและตั้งค่าเริ่มต้นใน attendanceStatus ด้วย
-                if (!attendanceStatus[student.id]) {
-                    attendanceStatus[student.id] = { status: 'มา', checkIns: [] };
-                }
+            studentsData.forEach((student) => {
+                // ถ้ายังไม่มีสถานะสำหรับวันนี้ ให้ตั้งค่าเริ่มต้นเป็น 'มา'
+                const currentStatus = attendanceStatus[student.id]?.status || 'มา'; 
+                // ตรวจสอบและตั้งค่าเริ่มต้นใน attendanceStatus ด้วย
+                if (!attendanceStatus[student.id]) {
+                    attendanceStatus[student.id] = { status: 'มา', checkIns: [] };
+                }
 
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 transition duration-150';
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition duration-150';
 
-                row.innerHTML = `
-                    <td class="py-3 px-4 text-sm text-gray-800 font-medium">${student.id}</td>
-                    <td class="py-3 px-4 text-sm text-gray-800">${student.name}</td>
-                    <td class="py-3 px-4 text-sm">
-                        <div class="flex flex-wrap gap-2 items-center">
-                            <label class="custom-radio-label status-มา">
-                                <input type="radio" name="status-${student.id}" value="มา"
-                                    data-student-id="${student.id}" ${currentStatus === 'มา' ? 'checked' : ''}>
-                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
-                                <span class="ml-2 text-green-700">มา</span>
-                            </label>
-                            <label class="custom-radio-label status-ลา">
-                                <input type="radio" name="status-${student.id}" value="ลา"
-                                    data-student-id="${student.id}" ${currentStatus === 'ลา' ? 'checked' : ''}>
-                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
-                                <span class="ml-2 text-yellow-700">ลา</span>
-                            </label>
-                            <label class="custom-radio-label status-ขาด">
-                                <input type="radio" name="status-${student.id}" value="ขาด"
-                                    data-student-id="${student.id}" ${currentStatus === 'ขาด' ? 'checked' : ''}>
-                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
-                                <span class="ml-2 text-red-700">ขาด</span>
-                            </label>
-                            <label class="custom-radio-label status-สาย">
-                                <input type="radio" name="status-${student.id}" value="สาย"
-                                    data-student-id="${student.id}" ${currentStatus === 'สาย' ? 'checked' : ''}>
-                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
-                                <span class="ml-2 text-orange-700">สาย</span>
-                            </label>
-                        </div>
-                    </td>
-                `;
-                studentListTableBody.appendChild(row);
-            });
-            // Attach event listeners to the newly created radio buttons
-            studentListTableBody.querySelectorAll('input[type="radio"]').forEach(radio => {
-                radio.addEventListener('change', (event) => {
-                    const studentId = event.target.dataset.studentId;
-                    const newStatus = event.target.value;
-                    
-                    attendanceStatus[studentId] = attendanceStatus[studentId] || { status: '', checkIns: [] };
-                    attendanceStatus[studentId].status = newStatus;
-                    
-                    // Clear check-ins if status is not 'มา' or 'สาย'
-                    if (newStatus !== 'มา' && newStatus !== 'สาย') {
-                        attendanceStatus[studentId].checkIns = [];
-                    }
-                });
-            });
-        }
+                row.innerHTML = `
+                    <td class="py-3 px-4 text-sm text-gray-800 font-medium">${student.id}</td>
+                    <td class="py-3 px-4 text-sm text-gray-800">${student.name}</td>
+                    <td class="py-3 px-4 text-sm">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <label class="custom-radio-label status-มา">
+                                <input type="radio" name="status-${student.id}" value="มา"
+                                    data-student-id="${student.id}" ${currentStatus === 'มา' ? 'checked' : ''}>
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                <span class="ml-2 text-green-700">มา</span>
+                            </label>
+                            <label class="custom-radio-label status-ลา">
+                                <input type="radio" name="status-${student.id}" value="ลา"
+                                    data-student-id="${student.id}" ${currentStatus === 'ลา' ? 'checked' : ''}>
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                <span class="ml-2 text-yellow-700">ลา</span>
+                            </label>
+                            <label class="custom-radio-label status-ขาด">
+                                <input type="radio" name="status-${student.id}" value="ขาด"
+                                    data-student-id="${student.id}" ${currentStatus === 'ขาด' ? 'checked' : ''}>
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                <span class="ml-2 text-red-700">ขาด</span>
+                            </label>
+                            <label class="custom-radio-label status-สาย">
+                                <input type="radio" name="status-${student.id}" value="สาย"
+                                    data-student-id="${student.id}" ${currentStatus === 'สาย' ? 'checked' : ''}>
+                                <span class="radio-outer-circle"><span class="radio-inner-dot"></span></span>
+                                <span class="ml-2 text-orange-700">สาย</span>
+                            </label>
+                        </div>
+                    </td>
+                `;
+                studentListTableBody.appendChild(row);
+            });
+            // Attach event listeners to the newly created radio buttons
+            studentListTableBody.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    const studentId = event.target.dataset.studentId;
+                    const newStatus = event.target.value;
+                    
+                    attendanceStatus[studentId] = attendanceStatus[studentId] || { status: '', checkIns: [] };
+                    attendanceStatus[studentId].status = newStatus;
+                    
+                    // Clear check-ins if status is not 'มา' or 'สาย'
+                    if (newStatus !== 'มา' && newStatus !== 'สาย') {
+                        attendanceStatus[studentId].checkIns = [];
+                    }
+                });
+            });
+        }
 
-        // Function to send attendance data to backend and trigger LINE notification
-        confirmButton.addEventListener('click', async () => {
-            showLoadingOverlay(); // Show full-page loading overlay
+        // Function to send attendance data to backend and trigger LINE notification
+        confirmButton.addEventListener('click', async () => {
+            showLoadingOverlay(); // Show full-page loading overlay
+            const todayDate = getTodayDateString();
+            let allRecordsSent = true;
 
-            const todayDate = getTodayDateString();
-            let allRecordsSent = true;
-
-            // 1. Prepare data: Ensure 'มา' or 'สาย' statuses have at least one check-in
-            const studentsToProcess = studentsData.map(student => {
-                const record = attendanceStatus[student.id] || { status: 'ยังไม่เช็คชื่อ', checkIns: [] };
-                
-                // If status is 'มา' or 'สาย' but no check-ins, add one automatically
-                if ((record.status === 'มา' || record.status === 'สาย') && record.checkIns.length === 0) {
-                    const autoCheckInTime = getCurrentTimeString();
-                    record.checkIns.push(autoCheckInTime);
-                    console.log(`Auto-added check-in for ${student.name} (${student.id}): ${autoCheckInTime}`);
-                }
-                return {
-                    studentId: student.id,
-                    studentName: student.name,
-                    date: todayDate,
-                    status: record.status,
-                    checkIns: record.checkIns
-                };
-            });
+            // 1. Prepare data: Ensure 'มา' or 'สาย' statuses have at least one check-in
+            const studentsToProcess = studentsData.map(student => {
+                const record = attendanceStatus[student.id] || { status: 'ยังไม่เช็คชื่อ', checkIns: [] };
+                
+                // If status is 'มา' or 'สาย' but no check-ins, add one automatically
+                if ((record.status === 'มา' || record.status === 'สาย') && record.checkIns.length === 0) {
+                    const autoCheckInTime = getCurrentTimeString();
+                    record.checkIns.push(autoCheckInTime);
+                    console.log(`Auto-added check-in for ${student.name} (${student.id}): ${autoCheckInTime}`);
+                }
+                return {
+                    studentId: student.id,
+                    studentName: student.name,
+                    date: todayDate,
+                    status: record.status,
+                    checkIns: record.checkIns
+                };
+            });
 
 
-            // 2. Send individual attendance records to backend
-            for (const record of studentsToProcess) {
-                try {
-                    const response = await fetch(`${BACKEND_API_BASE_URL}/attendance/record`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(record),
-                    });
+            // 2. Send individual attendance records to backend
+            for (const record of studentsToProcess) {
+                try {
+                    const response = await fetch(`${BACKEND_API_BASE_URL}/attendance/record`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(record),
+                    });
 
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error(`Failed to record attendance for ${record.studentName}:`, errorData);
-                        allRecordsSent = false;
-                        // Don't break, try to send other records
-                    }
-                } catch (error) {
-                    console.error(`Error sending attendance for ${record.studentName}:`, error);
-                    allRecordsSent = false;
-                    // Don't break
-                }
-            }
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error(`Failed to record attendance for ${record.studentName}:`, errorData);
+                        allRecordsSent = false;
+                        // Don't break, try to send other records
+                    }
+                } catch (error) {
+                    console.error(`Error sending attendance for ${record.studentName}:`, error);
+                    allRecordsSent = false;
+                    // Don't break
+                }
+            }
 
-            // 3. Trigger LINE summary and notification on backend
-            if (allRecordsSent) {
-                try {
-                    const summaryResponse = await fetch(`${BACKEND_API_BASE_URL}/attendance/summary-and-notify`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ date: todayDate }), // Send date to backend for summary
-                    });
+            // 3. Trigger LINE summary and notification on backend
+            if (allRecordsSent) {
+                try {
+                    const summaryResponse = await fetch(`${BACKEND_API_BASE_URL}/attendance/summary-and-notify`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ date: todayDate }), // Send date to backend for summary
+                    });
 
-                    if (summaryResponse.ok) {
-                        showModal('สำเร็จ!', 'บันทึกการเช็คชื่อและส่งแจ้งเตือน LINE เรียบร้อยแล้ว'); // No loading state for modal
-                    } else {
-                        const errorData = await summaryResponse.json();
-                        console.error('Failed to send LINE summary:', errorData);
-                        showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่ไม่สามารถส่งแจ้งเตือน LINE ได้: ${errorData.error || 'Unknown error'}`); // No loading state for modal
-                    }
-                } catch (error) {
-                    console.error('Error triggering LINE summary:', error);
-                    showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อส่งแจ้งเตือน LINE: ${error.message}`); // No loading state for modal
-                }
-            } else {
-                showModal('ข้อผิดพลาดบางส่วน', 'มีบางรายการเช็คชื่อที่ไม่สามารถบันทึกได้ โปรดตรวจสอบ Console สำหรับรายละเอียด'); // No loading state for modal
-            }
+                    if (summaryResponse.ok) {
+                        showModal('สำเร็จ!', 'บันทึกการเช็คชื่อและส่งแจ้งเตือน LINE เรียบร้อยแล้ว'); // No loading state for modal
+                    } else {
+                        const errorData = await summaryResponse.json();
+                        console.error('Failed to send LINE summary:', errorData);
+                        showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่ไม่สามารถส่งแจ้งเตือน LINE ได้: ${errorData.error || 'Unknown error'}`); // No loading state for modal
+                    }
+                } catch (error) {
+                    console.error('Error triggering LINE summary:', error);
+                    showModal('ข้อผิดพลาด', `บันทึกการเช็คชื่อสำเร็จ แต่เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อส่งแจ้งเตือน LINE: ${error.message}`); // No loading state for modal
+                }
+            } else {
+                showModal('ข้อผิดพลาดบางส่วน', 'มีบางรายการเช็คชื่อที่ไม่สามารถบันทึกได้ โปรดตรวจสอบ Console สำหรับรายละเอียด'); // No loading state for modal
+            }
 
-            hideLoadingOverlay(); // Hide full-page loading overlay
-            fetchStudents(); // Refresh data after submission
-        });
+            hideLoadingOverlay(); // Hide full-page loading overlay
+            fetchStudents(); // Refresh data after submission
+        });
 
-        // Initial load
-        document.addEventListener('DOMContentLoaded', () => {
-            currentDateSpan.textContent = new Date().toLocaleDateString('th-TH', { dateStyle: 'long' });
-            fetchStudents();
-        });
-    </script>
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            currentDateSpan.textContent = new Date().toLocaleDateString('th-TH', { dateStyle: 'long' });
+            fetchStudents();
+        });
+    </script>
 </body>
 </html>
